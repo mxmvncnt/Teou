@@ -9,7 +9,7 @@ class QrYuvDecoderTest {
 
     @Test
     fun decodesQrFromLuminancePlane() {
-        val content = PassphraseHelper.generate()
+        val content = "location-sharing-pairing"
         val matrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 256, 256)
         val yBytes = ByteArray(matrix.width * matrix.height)
 

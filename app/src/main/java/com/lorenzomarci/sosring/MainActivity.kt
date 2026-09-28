@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -15,7 +13,6 @@ import com.lorenzomarci.sosring.databinding.ActivityMainBinding
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var prefs: PrefsManager
     private lateinit var toggle: ActionBarDrawerToggle
 
     private val contactsUpdatedReceiver = object : BroadcastReceiver() {
@@ -31,8 +28,6 @@ class MainActivity : BaseActivity() {
         super.onCreate(null)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        prefs = PrefsManager(this)
 
         setSupportActionBar(binding.toolbar)
         toggle = ActionBarDrawerToggle(
@@ -56,7 +51,6 @@ class MainActivity : BaseActivity() {
         loadFragment(HomeFragment(), getString(R.string.nav_home))
         binding.navigationView.setCheckedItem(R.id.nav_home)
 
-        handleUpdateIntent(intent)
     }
 
     override fun onResume() {
@@ -66,40 +60,11 @@ class MainActivity : BaseActivity() {
             IntentFilter(Push.ACTION_CONTACTS_UPDATED)
         )
         Push.ensureRegistered(this)
-        if (BuildConfig.UPDATE_URL.isNotBlank()) {
-            UpdateChecker(this).checkAndNotify()
-        }
     }
 
     override fun onPause() {
         super.onPause()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(contactsUpdatedReceiver)
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleUpdateIntent(intent)
-    }
-
-    private fun handleUpdateIntent(intent: Intent?) {
-        if (intent?.action == "com.lorenzomarci.sosring.ACTION_DOWNLOAD_UPDATE") {
-            if (!isSelfOriginatedUpdateIntent(intent)) {
-                Log.w("MainActivity", "Ignoring update intent from foreign source")
-                return
-            }
-            val apkUrl = intent.getStringExtra("apk_url") ?: return
-            Toast.makeText(this, getString(R.string.update_downloading), Toast.LENGTH_SHORT).show()
-            UpdateChecker(this).downloadAndInstall(apkUrl)
-        }
-    }
-
-    private fun isSelfOriginatedUpdateIntent(intent: Intent): Boolean {
-        if (intent.component?.packageName != packageName) return false
-        val token = intent.getStringExtra("update_token")
-        val expectedToken = prefs.pendingUpdateToken
-        if (token.isNullOrBlank() || expectedToken.isNullOrBlank() || token != expectedToken) return false
-        prefs.pendingUpdateToken = null
-        return true
     }
 
     private fun loadFragment(fragment: androidx.fragment.app.Fragment, title: String) {

@@ -36,10 +36,6 @@ android {
     productFlavors {
         create("fdroid") {
             dimension = "distribution"
-            buildConfigField("String", "UPDATE_URL", "\"\"")
-            buildConfigField("String", "APP_SECRET", "\"\"")
-            buildConfigField("String", "NTFY_SERVER", "\"\"")
-            buildConfigField("String", "NTFY_AUTH_TOKEN", "\"\"")
         }
     }
 
@@ -67,7 +63,6 @@ android {
 
     buildFeatures {
         viewBinding = true
-        buildConfig = true
     }
 
     compileOptions {
@@ -92,7 +87,7 @@ dependencies {
 
     implementation("org.maplibre.gl:android-sdk:13.3.0")
 
-    // QR code generation for security passphrase display
+    // QR pairing
     implementation("com.google.zxing:core:3.5.3")
 
     implementation("androidx.camera:camera-core:1.3.4")

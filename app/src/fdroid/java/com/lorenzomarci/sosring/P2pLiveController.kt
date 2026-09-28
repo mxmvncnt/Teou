@@ -161,7 +161,6 @@ object P2pLiveController {
         inIntervalMs = intervalSeconds * 1000L
         lastFixAtMs = inStartedAtMs
         inStaleNotified = false
-        CallMonitorService.getInstance()?.setLocationForegroundType(true)
         val helper = LocationHelper(context)
         locationHelper = helper
         val appContext = context.applicationContext
@@ -210,7 +209,6 @@ object P2pLiveController {
         val startedAtMs = inStartedAtMs
         locationHelper?.stopLiveTracking()
         locationHelper = null
-        CallMonitorService.getInstance()?.setLocationForegroundType(false)
         inHandler.removeCallbacksAndMessages(null)
         if (sendEnd && requesterNumber != null) {
             PeerStore(context).get(requesterNumber)?.let { sendTo(it, P2pMessageFactory.liveStop(sessionId), ControlRetryPolicy.MAX_ATTEMPTS) }

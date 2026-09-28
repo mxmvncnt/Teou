@@ -26,7 +26,7 @@ object PushProvider {
 
     fun engine(): PushEngine? = engineInstance
 
-    fun liveEngine(): PushEngine? = engineInstance ?: CallMonitorService.getInstance()?.pushEngine
+    fun liveEngine(): PushEngine? = engineInstance
 
     fun requestLocation(context: Context, contact: VipContact): Boolean {
         val engine = engineInstance ?: P2pPushEngine(context.applicationContext)

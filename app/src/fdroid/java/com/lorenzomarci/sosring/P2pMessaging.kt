@@ -76,9 +76,6 @@ object P2pMessaging {
             return
         }
         Log.i(TAG, "position request from ${requester.number}, getting fix")
-        val locationServicePromoted = CallMonitorService.getInstance()?.also {
-            it.setLocationForegroundType(true)
-        } != null
         LocationHelper(context).requestSingleFix(object : LocationHelper.Callback {
             override fun onLocationReady(location: Location) {
                 val payload = P2pMessageFactory.locResponse(
@@ -87,20 +84,12 @@ object P2pMessaging {
                 sendTo(context, requester, payload)
                 Log.i(TAG, "position response sent to ${requester.number}")
                 notify(context, context.getString(R.string.p2p_location_shared, label), null)
-                demoteLocationForeground(locationServicePromoted)
             }
 
             override fun onLocationFailed() {
                 Log.w(TAG, "Location fix failed for ${requester.number}")
-                demoteLocationForeground(locationServicePromoted)
             }
         })
-    }
-
-    private fun demoteLocationForeground(wasPromoted: Boolean) {
-        if (!wasPromoted) return
-        if (P2pLiveController.hasActiveIncomingSession()) return
-        CallMonitorService.getInstance()?.setLocationForegroundType(false)
     }
 
     private fun respondWithLiveStart(context: Context, requester: Peer, payload: ByteArray) {
