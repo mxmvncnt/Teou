@@ -21,21 +21,22 @@ object WebPushSender {
             .build()
     }
 
-    fun send(endpoint: String, body: ByteArray, attempts: Int = 1) {
-        Thread {
-            for (attempt in 0 until attempts.coerceAtLeast(1)) {
-                try {
-                    Thread.sleep(ControlRetryPolicy.delayBeforeAttempt(attempt))
-                    NetworkClient.client.newCall(buildRequest(endpoint, body)).execute().use { response ->
-                        if (response.isSuccessful) return@Thread
-                        Log.e(TAG, "Web Push POST failed: ${response.code} (attempt ${attempt + 1}/$attempts)")
-                    }
-                } catch (e: InterruptedException) {
-                    return@Thread
-                } catch (e: Exception) {
-                    Log.e(TAG, "Web Push POST error: ${e.message} (attempt ${attempt + 1}/$attempts)")
+    // Call from a worker thread; keeping the caller alive until the POST finishes matters for push replies.
+    fun send(endpoint: String, body: ByteArray, attempts: Int = 1): Boolean {
+        for (attempt in 0 until attempts.coerceAtLeast(1)) {
+            try {
+                Thread.sleep(ControlRetryPolicy.delayBeforeAttempt(attempt))
+                NetworkClient.client.newCall(buildRequest(endpoint, body)).execute().use { response ->
+                    if (response.isSuccessful) return true
+                    Log.e(TAG, "Web Push POST failed: ${response.code} (attempt ${attempt + 1}/$attempts)")
                 }
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                return false
+            } catch (e: Exception) {
+                Log.e(TAG, "Web Push POST error: ${e.message} (attempt ${attempt + 1}/$attempts)")
             }
-        }.start()
+        }
+        return false
     }
 }

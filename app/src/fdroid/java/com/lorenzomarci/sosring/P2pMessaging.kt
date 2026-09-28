@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -72,21 +71,14 @@ object P2pMessaging {
             Log.w(TAG, "Location request from ${requester.number} dropped (sharing not enabled)")
             return
         }
-        Log.i(TAG, "position request from ${requester.number}, getting fix")
-        LocationHelper(context).requestSingleFix(object : LocationHelper.Callback {
-            override fun onLocationReady(location: Location) {
-                val payload = P2pMessageFactory.locResponse(
-                    location.latitude, location.longitude, location.accuracy.toDouble()
-                )
-                sendTo(context, requester, payload)
-                Log.i(TAG, "position response sent to ${requester.number}")
-                notify(context, context.getString(R.string.p2p_location_shared, label), null)
-            }
+        LocationReplyJob.schedule(context, requester)
+    }
 
-            override fun onLocationFailed() {
-                Log.w(TAG, "Location fix failed for ${requester.number}")
-            }
-        })
+    fun sendLocation(context: Context, requester: Peer, latitude: Double, longitude: Double, accuracy: Double) {
+        val payload = P2pMessageFactory.locResponse(latitude, longitude, accuracy)
+        if (sendTo(context, requester, payload)) {
+            Log.i(TAG, "position response sent to ${requester.number}")
+        }
     }
 
     private fun showLocation(context: Context, sender: Peer, payload: ByteArray) {
@@ -107,10 +99,10 @@ object P2pMessaging {
         Log.i(TAG, "position response shown from ${sender.number}")
     }
 
-    private fun sendTo(context: Context, peer: Peer, payload: ByteArray) {
+    private fun sendTo(context: Context, peer: Peer, payload: ByteArray): Boolean {
         val envelope = P2pEnvelope.seal(payload, IdentityKeyStore.idPub(), IdentityKeyStore::sign)
         val body = WebPushCrypto.encrypt(envelope, peer.p256dh, peer.auth)
-        WebPushSender.send(peer.endpoint, body)
+        return WebPushSender.send(peer.endpoint, body)
     }
 
     private fun notify(context: Context, text: String, pending: PendingIntent?) {
