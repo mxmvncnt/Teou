@@ -34,14 +34,6 @@ android {
     flavorDimensions += "distribution"
 
     productFlavors {
-        create("internal") {
-            dimension = "distribution"
-            applicationIdSuffix = ".internal"
-            buildConfigField("String", "UPDATE_URL", "\"${localProps.getProperty("UPDATE_URL", "")}\"")
-            buildConfigField("String", "APP_SECRET", "\"${localProps.getProperty("APP_SECRET", "")}\"")
-            buildConfigField("String", "NTFY_SERVER", "\"${localProps.getProperty("NTFY_SERVER", "")}\"")
-            buildConfigField("String", "NTFY_AUTH_TOKEN", "\"${localProps.getProperty("NTFY_AUTH_TOKEN", "")}\"")
-        }
         create("fdroid") {
             dimension = "distribution"
             buildConfigField("String", "UPDATE_URL", "\"\"")
@@ -96,11 +88,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
 
-    "internalImplementation"("com.google.android.gms:play-services-location:21.3.0")
-
-    // HTTP client for ntfy
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:okhttp-sse:4.12.0")
 
     implementation("org.maplibre.gl:android-sdk:13.3.0")
 
