@@ -28,7 +28,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(null)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -53,10 +53,8 @@ class MainActivity : BaseActivity() {
             true
         }
 
-        if (savedInstanceState == null) {
-            loadFragment(HomeFragment(), getString(R.string.nav_home))
-            binding.navigationView.setCheckedItem(R.id.nav_home)
-        }
+        loadFragment(HomeFragment(), getString(R.string.nav_home))
+        binding.navigationView.setCheckedItem(R.id.nav_home)
 
         handleUpdateIntent(intent)
     }
