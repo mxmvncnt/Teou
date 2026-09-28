@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="location_permission_request">Grant location permissions</string>
     <string name="app_name" translatable="false">SOS Ring</string>
     <string name="appearance_title">Appearance</string>
     <string name="appearance_palette">Color theme</string>

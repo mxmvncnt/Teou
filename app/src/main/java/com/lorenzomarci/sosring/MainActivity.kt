@@ -45,9 +45,7 @@ class MainActivity : BaseActivity() {
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> loadFragment(HomeFragment(), getString(R.string.nav_home))
-                R.id.nav_settings -> loadFragment(SettingsFragment(), getString(R.string.nav_settings))
                 R.id.nav_location_log -> loadFragment(LocationLogFragment(), getString(R.string.nav_location_log))
-                R.id.nav_privacy -> loadFragment(PrivacyFragment(), getString(R.string.nav_privacy))
                 R.id.nav_security -> loadFragment(SecurityFragment(), getString(R.string.security_title))
             }
             menuItem.isChecked = true
@@ -69,7 +67,6 @@ class MainActivity : BaseActivity() {
             contactsUpdatedReceiver,
             IntentFilter(Push.ACTION_CONTACTS_UPDATED)
         )
-        CallMonitorService.getInstance()?.pushEngine?.runDiscovery()
         Push.ensureRegistered(this)
         if (BuildConfig.UPDATE_URL.isNotBlank()) {
             UpdateChecker(this).checkAndNotify()

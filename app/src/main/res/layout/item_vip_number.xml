@@ -69,28 +69,6 @@
             app:tint="?attr/tokenAccent" />
 
         <ImageButton
-            android:id="@+id/btnStop"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/stop_icon_desc"
-            android:padding="11dp"
-            android:src="@drawable/ic_stop"
-            android:visibility="gone"
-            app:tint="@color/danger" />
-
-        <ImageButton
-            android:id="@+id/btnMap"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/view_path_desc"
-            android:padding="11dp"
-            android:src="@drawable/ic_pin"
-            android:visibility="gone"
-            app:tint="?attr/tokenAccent" />
-
-        <ImageButton
             android:id="@+id/btnMore"
             android:layout_width="44dp"
             android:layout_height="44dp"
