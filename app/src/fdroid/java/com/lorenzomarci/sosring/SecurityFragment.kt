@@ -207,7 +207,6 @@ class SecurityFragment : Fragment() {
             locationSwitch.isChecked = locationEnabled
             locationSwitch.setOnCheckedChangeListener { _, isChecked ->
                 prefs.updateContactLocationEnabled(peer.number, isChecked)
-                if (!isChecked) Push.onLocationSharingRevoked(requireContext(), peer.number)
             }
             container.addView(row)
         }
@@ -219,7 +218,6 @@ class SecurityFragment : Fragment() {
             .setMessage(getString(R.string.p2p_peer_remove_msg, peer.number))
             .setPositiveButton(R.string.btn_remove) { _, _ ->
                 PeerStore(requireContext()).remove(peer.number)
-                Push.onLocationSharingRevoked(requireContext(), peer.number)
                 refreshPeerList()
             }
             .setNegativeButton(R.string.btn_cancel, null)

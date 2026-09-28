@@ -43,7 +43,7 @@ object P2pMessaging {
             return
         }
         val type = P2pMessageFactory.type(opened.payload)
-        val enforceRateLimit = (type == P2pMessageFactory.TYPE_LOC_REQUEST || type == P2pMessageFactory.TYPE_LIVE_START)
+        val enforceRateLimit = type == P2pMessageFactory.TYPE_LOC_REQUEST
         val verdict = P2pReplayGuard(context).check(
             senderIdPubB64 = WebPushCrypto.b64enc(opened.senderIdPub),
             ts = P2pMessageFactory.timestamp(opened.payload),
@@ -57,9 +57,6 @@ object P2pMessaging {
         when (type) {
             P2pMessageFactory.TYPE_LOC_REQUEST -> respondWithLocation(context, sender)
             P2pMessageFactory.TYPE_LOC_RESPONSE -> showLocation(context, sender, opened.payload)
-            P2pMessageFactory.TYPE_LIVE_START -> respondWithLiveStart(context, sender, opened.payload)
-            P2pMessageFactory.TYPE_LIVE_POINT -> handleLivePoint(context, sender, opened.payload)
-            P2pMessageFactory.TYPE_LIVE_STOP -> handleLiveStop(context, sender, opened.payload)
             else -> Log.w(TAG, "Unknown P2P message type")
         }
     }
@@ -90,31 +87,6 @@ object P2pMessaging {
                 Log.w(TAG, "Location fix failed for ${requester.number}")
             }
         })
-    }
-
-    private fun respondWithLiveStart(context: Context, requester: Peer, payload: ByteArray) {
-        val start = P2pMessageFactory.parseLiveStart(payload) ?: return
-        val prefs = PrefsManager(context)
-        val contact = prefs.getContacts()
-            .firstOrNull { PhoneUtils.matches(requester.number, it.number) }
-        val allowed = contact != null && contact.locationEnabled
-        val label = contact?.name?.ifBlank { requester.number } ?: requester.number
-        prefs.addLocationLog(label, requester.number, if (allowed) LOG_TYPE_INCOMING else LOG_TYPE_INCOMING_DENIED)
-        if (!allowed) {
-            Log.w(TAG, "Live start from ${requester.number} dropped (sharing not enabled)")
-            return
-        }
-        P2pLiveController.startIncoming(context, requester, label, start.sessionId, start.durationMin, start.intervalSec)
-    }
-
-    private fun handleLivePoint(context: Context, sender: Peer, payload: ByteArray) {
-        val point = P2pMessageFactory.parseLivePoint(payload) ?: return
-        P2pLiveController.onPointReceived(context, sender.number, point.sessionId, point.lat, point.lon, point.accuracy)
-    }
-
-    private fun handleLiveStop(context: Context, sender: Peer, payload: ByteArray) {
-        val stop = P2pMessageFactory.parseLiveStop(payload) ?: return
-        P2pLiveController.onEndReceived(context, sender.number, stop.sessionId)
     }
 
     private fun showLocation(context: Context, sender: Peer, payload: ByteArray) {

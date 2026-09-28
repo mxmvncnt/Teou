@@ -4,16 +4,6 @@ import android.app.Activity
 import android.content.Context
 
 object Push {
-    const val ACTION_CONTACTS_UPDATED = "com.lorenzomarci.sosring.CONTACTS_UPDATED"
-
-    val supportsLiveTracking: Boolean get() = PushProvider.supportsLiveTracking
-    val supportsServerConfig: Boolean get() = PushProvider.supportsServerConfig
-
-    fun canStart(context: Context): Boolean = PushProvider.canStart(context)
-    fun start(context: Context) = PushProvider.start(context)
-    fun engine(): PushEngine? = PushProvider.engine()
-    fun liveEngine(): PushEngine? = PushProvider.liveEngine()
-    fun verifySetup(context: Context): PushSetupStatus = PushProvider.verifySetup(context)
     fun locationBlock(context: Context, contact: VipContact): String? = PushProvider.locationBlock(context, contact)
     fun ensureRegistered(activity: Activity) = PushProvider.ensureRegistered(activity)
 
@@ -23,9 +13,4 @@ object Push {
     fun canRequestLocation(context: Context, number: String): Boolean =
         PushProvider.canRequestLocation(context, number)
 
-    fun startLiveTracking(context: Context, contact: VipContact, minutes: Int): Boolean =
-        PushProvider.startLiveTracking(context, contact, minutes)
-
-    fun onLocationSharingRevoked(context: Context, number: String) =
-        PushProvider.onLocationSharingRevoked(context, number)
 }

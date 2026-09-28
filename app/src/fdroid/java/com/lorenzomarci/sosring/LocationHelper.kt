@@ -26,11 +26,6 @@ class LocationHelper(private val context: Context) {
         fun onLocationFailed()
     }
 
-    interface LiveCallback {
-        fun onLocationUpdate(location: Location)
-        fun onLiveError(message: String)
-    }
-
     private val locationManager =
         context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val handler = Handler(Looper.getMainLooper())
@@ -38,35 +33,9 @@ class LocationHelper(private val context: Context) {
     private var bestLocation: Location? = null
     private var isRequesting = false
 
-    private var liveCallback: LiveCallback? = null
-    private var isLiveTracking = false
-    private var liveUpdateCount = 0
-    private var maxLiveUpdates = Int.MAX_VALUE
-    private val liveTimeoutRunnable = Runnable { stopLiveTracking() }
-
     private val singleFixListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             handleFix(location, location.provider ?: "Platform")
-        }
-
-        @Deprecated("Deprecated in API 29")
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-        }
-
-        override fun onProviderEnabled(provider: String) {
-        }
-
-        override fun onProviderDisabled(provider: String) {
-        }
-    }
-
-    private val liveListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            liveCallback?.onLocationUpdate(location)
-            liveUpdateCount++
-            if (liveUpdateCount >= maxLiveUpdates) {
-                stopLiveTracking()
-            }
         }
 
         @Deprecated("Deprecated in API 29")
@@ -180,64 +149,6 @@ class LocationHelper(private val context: Context) {
         return best
     }
 
-    @SuppressLint("MissingPermission")
-    fun startLiveTracking(
-        cb: LiveCallback,
-        intervalMillis: Long = 10_000L,
-        maxDurationMillis: Long = 60 * 60_000L
-    ) {
-        if (isLiveTracking) return
-        if (!hasForegroundLocationPermission()) {
-            cb.onLiveError("Location permission missing")
-            return
-        }
-        liveCallback = cb
-        isLiveTracking = true
-        liveUpdateCount = 0
-        maxLiveUpdates = LiveLocationBudget.maxUpdates(maxDurationMillis, intervalMillis)
-
-        var anyProvider = false
-        for (provider in liveProviders()) {
-            try {
-                locationManager.requestLocationUpdates(
-                    provider,
-                    intervalMillis,
-                    0f,
-                    liveListener,
-                    Looper.getMainLooper()
-                )
-                anyProvider = true
-            } catch (e: SecurityException) {
-                cb.onLiveError("Permission denied: ${e.message}")
-                isLiveTracking = false
-                liveCallback = null
-                locationManager.removeUpdates(liveListener)
-                return
-            } catch (e: IllegalArgumentException) {
-                Log.w(TAG, "Provider $provider unavailable: ${e.message}")
-            }
-        }
-
-        if (!anyProvider) {
-            cb.onLiveError("No location provider available")
-            isLiveTracking = false
-            liveCallback = null
-            return
-        }
-
-        handler.postDelayed(liveTimeoutRunnable, maxDurationMillis)
-        Log.i(TAG, "Live tracking started, interval=${intervalMillis}ms")
-    }
-
-    fun stopLiveTracking() {
-        if (!isLiveTracking) return
-        handler.removeCallbacks(liveTimeoutRunnable)
-        locationManager.removeUpdates(liveListener)
-        isLiveTracking = false
-        liveCallback = null
-        Log.i(TAG, "Live tracking stopped")
-    }
-
     private fun singleFixProviders(): List<String> {
         val providers = mutableListOf<String>()
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -247,16 +158,6 @@ class LocationHelper(private val context: Context) {
             providers.add(LocationManager.NETWORK_PROVIDER)
         }
         return providers
-    }
-
-    private fun liveProviders(): List<String> {
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            return listOf(LocationManager.GPS_PROVIDER)
-        }
-        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            return listOf(LocationManager.NETWORK_PROVIDER)
-        }
-        return emptyList()
     }
 
     private fun hasForegroundLocationPermission(): Boolean {
@@ -280,7 +181,6 @@ class LocationHelper(private val context: Context) {
 
     fun stop() {
         stopUpdates()
-        stopLiveTracking()
         callback = null
     }
 }
