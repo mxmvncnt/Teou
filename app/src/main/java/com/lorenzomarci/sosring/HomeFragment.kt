@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -107,8 +106,6 @@ class HomeFragment : Fragment() {
             when {
                 hasLocation() && !hasBackgroundLocation() -> startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     android.net.Uri.parse("package:${requireContext().packageName}")))
-                Build.VERSION.SDK_INT >= 33 && !hasNotifications() ->
-                    permissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
                 else -> permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION))
             }
@@ -176,14 +173,10 @@ class HomeFragment : Fragment() {
     private fun hasBackgroundLocation(): Boolean =
         ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-    private fun hasNotifications(): Boolean = Build.VERSION.SDK_INT < 33 ||
-        ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-
     private fun updatePermissions() {
         val missing = when {
             !hasLocation() -> R.string.location_permission_request
             !hasBackgroundLocation() -> R.string.location_bg_perm_needed
-            !hasNotifications() -> R.string.notification_permission_request
             else -> null
         }
         binding.btnPermissions.visibility = if (missing == null) View.GONE else View.VISIBLE

@@ -8,7 +8,7 @@ Expand the bottom sheet on **Home** to add or manage contacts, pair devices with
 
 Requires a UnifiedPush distributor on each device (for example ntfy). Push delivery is handled by the distributor; the app does not poll for requests. There is no FCM fallback yet.
 
-Incoming requests schedule a background job to obtain one fix and send the reply. The sharing phone does not display a notification. Android may delay background jobs (especially in Doze), so delivery is not immediate or guaranteed. Grant background location access for automatic replies.
+Incoming requests schedule a background job to obtain one fix and send the reply. The app does not display location notifications on either phone; responses silently update the map. Android may delay background jobs (especially in Doze), so delivery is not immediate or guaranteed. Grant background location access for automatic replies.
 
 Build with `sh gradlew assembleFdroidDebug` or `sh gradlew assembleFdroidRelease` (JDK and Android SDK required).
 

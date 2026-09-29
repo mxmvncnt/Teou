@@ -1,21 +1,11 @@
 package com.lorenzomarci.sosring
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import java.net.URLEncoder
 
 object P2pMessaging {
 
     private const val TAG = "P2pMessaging"
-    private const val CHANNEL_ID = "sosring_push"
-    private const val NOTIFICATION_ID = 7
     private const val MAX_ENVELOPE_BYTES = 4096
     private const val LOG_TYPE_INCOMING = "incoming"
     private const val LOG_TYPE_INCOMING_DENIED = "incoming_denied"
@@ -55,7 +45,7 @@ object P2pMessaging {
         }
         when (type) {
             P2pMessageFactory.TYPE_LOC_REQUEST -> respondWithLocation(context, sender)
-            P2pMessageFactory.TYPE_LOC_RESPONSE -> showLocation(context, sender, opened.payload)
+            P2pMessageFactory.TYPE_LOC_RESPONSE -> storeLocation(context, sender, opened.payload)
             else -> Log.w(TAG, "Unknown P2P message type")
         }
     }
@@ -81,23 +71,10 @@ object P2pMessaging {
         }
     }
 
-    private fun showLocation(context: Context, sender: Peer, payload: ByteArray) {
+    private fun storeLocation(context: Context, sender: Peer, payload: ByteArray) {
         val loc = P2pMessageFactory.parseLocResponse(payload) ?: return
         ReceivedLocationStore(context).save(sender, loc.lat, loc.lon)
-        val label = URLEncoder.encode(sender.number, "UTF-8")
-        val geoUri = Uri.parse("geo:${loc.lat},${loc.lon}?q=${loc.lat},${loc.lon}($label)")
-        val mapIntent = Intent(Intent.ACTION_VIEW, geoUri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
-        val pending = PendingIntent.getActivity(
-            context, sender.number.hashCode(), mapIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val text = if (loc.accuracy > 0.0) {
-            context.getString(R.string.location_received, sender.number, loc.accuracy.toInt())
-        } else {
-            context.getString(R.string.p2p_location_received_no_acc, sender.number)
-        }
-        notify(context, text, pending)
-        Log.i(TAG, "position response shown from ${sender.number}")
+        Log.i(TAG, "position response saved from ${sender.number}")
     }
 
     private fun sendTo(context: Context, peer: Peer, payload: ByteArray): Boolean {
@@ -106,26 +83,4 @@ object P2pMessaging {
         return WebPushSender.send(peer.endpoint, body)
     }
 
-    private fun notify(context: Context, text: String, pending: PendingIntent?) {
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.createNotificationChannel(
-            NotificationChannel(
-                CHANNEL_ID,
-                context.getString(R.string.notif_location_channel_name),
-                NotificationManager.IMPORTANCE_HIGH
-            )
-        )
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("SOS Ring")
-            .setContentText(text)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-        if (pending != null) builder.setContentIntent(pending)
-        try {
-            NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Cannot show notification: ${e.message}")
-        }
-    }
 }

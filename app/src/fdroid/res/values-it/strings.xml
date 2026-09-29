@@ -25,7 +25,6 @@
 
     <string name="p2p_location_share_label">Condividi la mia posizione con questo contatto</string>
     <string name="p2p_location_share_hint">Disattivata di default. Attivala solo per i contatti a cui vuoi permettere di vedere la tua posizione quando la richiedono.</string>
-    <string name="p2p_location_received_no_acc">Posizione di %1$s</string>
 
     <string name="p2p_peer_fingerprint">Identità: %1$s</string>
     <string name="p2p_fingerprint_label">Verifica questo codice di persona prima di fidarti:</string>
