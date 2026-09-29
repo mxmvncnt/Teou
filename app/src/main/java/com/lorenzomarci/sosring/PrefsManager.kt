@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import org.json.JSONArray
 import org.json.JSONObject
 
+// number is an opaque stable contact ID, never shown in the UI (legacy installs keep phone numbers as IDs).
 data class VipContact(val name: String, val number: String, val locationEnabled: Boolean = false)
 
 data class LocationLogEntry(val name: String, val number: String, val timestamp: Long, val type: String)

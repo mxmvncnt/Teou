@@ -52,9 +52,9 @@
     <string name="btn_continue">Continue</string>
     <string name="edit_contact_title">Edit contact</string>
     <string name="remove_contact_title">Remove contact</string>
-    <string name="remove_contact_msg">Remove %1$s (%2$s) from VIP list?</string>
+    <string name="remove_contact_msg">Remove %1$s from contacts?</string>
     <string name="no_phone_found">No phone number found for this contact</string>
-    <string name="contact_invalid_input">Enter a name and a phone number with at least 4 digits.</string>
+    <string name="contact_invalid_input">Enter a unique name for this contact.</string>
     <string name="contact_numbers_title">Select numbers for %1$s</string>
     <string name="contact_number_option">%1$s — %2$s</string>
     <string name="contact_numbers_none_selected">Select at least one number.</string>
@@ -289,7 +289,6 @@
     <string name="notif_override_channel_desc">Notification when the ringtone is forced</string>
     <string name="notif_location_channel_desc">Location sharing notifications</string>
     <string name="dialog_name_hint">Name</string>
-    <string name="dialog_phone_hint">Phone number</string>
     <string name="import_key_hint">base64 key</string>
     <string name="notif_update_channel_name">App updates</string>
     <string name="notif_update_channel_desc">Notifications for app updates</string>

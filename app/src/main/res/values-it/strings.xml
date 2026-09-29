@@ -50,9 +50,9 @@
     <string name="btn_continue">Continua</string>
     <string name="edit_contact_title">Modifica contatto</string>
     <string name="remove_contact_title">Rimuovi contatto</string>
-    <string name="remove_contact_msg">Rimuovere %1$s (%2$s) dalla lista VIP?</string>
+    <string name="remove_contact_msg">Rimuovere %1$s dai contatti?</string>
     <string name="no_phone_found">Nessun numero trovato per questo contatto</string>
-    <string name="contact_invalid_input">Inserisci un nome e un numero di telefono di almeno 4 cifre.</string>
+    <string name="contact_invalid_input">Inserisci un nome univoco per questo contatto.</string>
     <string name="contact_numbers_title">Seleziona i numeri di %1$s</string>
     <string name="contact_number_option">%1$s — %2$s</string>
     <string name="contact_numbers_none_selected">Seleziona almeno un numero.</string>
@@ -287,7 +287,6 @@
     <string name="notif_override_channel_desc">Notifica quando la suoneria viene forzata</string>
     <string name="notif_location_channel_desc">Notifiche di condivisione posizione</string>
     <string name="dialog_name_hint">Nome</string>
-    <string name="dialog_phone_hint">Numero di telefono</string>
     <string name="import_key_hint">Chiave base64</string>
     <string name="notif_update_channel_name">Aggiornamenti app</string>
     <string name="notif_update_channel_desc">Notifiche per gli aggiornamenti dell\'app</string>

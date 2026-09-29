@@ -134,7 +134,7 @@ class SecurityFragment : Fragment() {
             Toast.makeText(requireContext(), getString(R.string.p2p_pair_no_contacts), Toast.LENGTH_LONG).show()
             return
         }
-        val names = contacts.map { "${it.name} (${it.number})" }.toTypedArray()
+        val names = contacts.map { it.name }.toTypedArray()
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.p2p_pair_choose_contact)
             .setItems(names) { _, which ->
@@ -156,9 +156,12 @@ class SecurityFragment : Fragment() {
 
     private fun confirmDuplicateIdentity(contact: VipContact, other: Peer, payload: PairPayload) {
         val fingerprint = fingerprintOf(payload.idPub!!)
+        val otherName = prefs.getContacts()
+            .firstOrNull { PhoneUtils.matches(it.number, other.number) }?.name
+            ?: fingerprintOf(other.idPub)
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.p2p_duplicate_identity_title)
-            .setMessage(getString(R.string.p2p_duplicate_identity_msg, other.number, contact.name, fingerprint))
+            .setMessage(getString(R.string.p2p_duplicate_identity_msg, otherName, contact.name, fingerprint))
             .setPositiveButton(R.string.p2p_duplicate_identity_confirm) { _, _ -> savePeer(contact, payload) }
             .setNegativeButton(R.string.btn_cancel, null)
             .show()
@@ -197,7 +200,9 @@ class SecurityFragment : Fragment() {
         binding.tvPeersEmpty.visibility = if (peers.isEmpty()) View.VISIBLE else View.GONE
         peers.forEach { peer ->
             val row = LayoutInflater.from(requireContext()).inflate(R.layout.item_peer, container, false)
-            row.findViewById<TextView>(R.id.tvPeerNumber).text = peer.number
+            val peerName = contacts.firstOrNull { PhoneUtils.matches(it.number, peer.number) }?.name
+                ?: fingerprintOf(peer.idPub)
+            row.findViewById<TextView>(R.id.tvPeerNumber).text = peerName
             row.findViewById<TextView>(R.id.tvPeerFingerprint).text =
                 getString(R.string.p2p_peer_fingerprint, fingerprintOf(peer.idPub))
             row.findViewById<View>(R.id.btnRemovePeer).setOnClickListener { confirmRemovePeer(peer) }
@@ -213,9 +218,12 @@ class SecurityFragment : Fragment() {
     }
 
     private fun confirmRemovePeer(peer: Peer) {
+        val peerName = prefs.getContacts()
+            .firstOrNull { PhoneUtils.matches(it.number, peer.number) }?.name
+            ?: fingerprintOf(peer.idPub)
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.p2p_peer_remove_title)
-            .setMessage(getString(R.string.p2p_peer_remove_msg, peer.number))
+            .setMessage(getString(R.string.p2p_peer_remove_msg, peerName))
             .setPositiveButton(R.string.btn_remove) { _, _ ->
                 PeerStore(requireContext()).remove(peer.number)
                 refreshPeerList()

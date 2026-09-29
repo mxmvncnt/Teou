@@ -289,27 +289,21 @@ class HomeFragment : Fragment() {
     private fun editContact(contact: VipContact?) {
         val view = layoutInflater.inflate(R.layout.dialog_add_number, null)
         val name = view.findViewById<EditText>(R.id.etDialogName)
-        val number = view.findViewById<EditText>(R.id.etDialogNumber)
         name.setText(contact?.name.orEmpty())
-        number.setText(contact?.number.orEmpty())
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(if (contact == null) R.string.add_choice_title else R.string.edit_contact_title)
             .setView(view)
             .setPositiveButton(R.string.btn_save) { _, _ ->
                 val n = name.text.toString().trim()
-                val p = number.text.toString().trim()
                 val contacts = prefs.getContacts().toMutableList()
-                if (n.isBlank() || p.length <= 3 || contacts.any { it.number != contact?.number && PhoneUtils.matches(it.number, p) }) {
+                if (n.isBlank() || contacts.any { it.number != contact?.number && it.name.equals(n, ignoreCase = true) }) {
                     Toast.makeText(requireContext(), R.string.contact_invalid_input, Toast.LENGTH_LONG).show()
                 } else {
-                    if (contact == null) contacts.add(VipContact(n, p))
+                    if (contact == null) contacts.add(VipContact(n, java.util.UUID.randomUUID().toString()))
                     else {
                         val position = contacts.indexOfFirst { it.number == contact.number }
                         if (position < 0) return@setPositiveButton
-                        if (PhoneUtils.normalize(contact.number) != PhoneUtils.normalize(p)) {
-                            PeerStore(requireContext()).remove(contact.number)
-                        }
-                        contacts[position] = contact.copy(name = n, number = p)
+                        contacts[position] = contact.copy(name = n)
                     }
                     prefs.saveContacts(contacts)
                     refresh()
@@ -321,7 +315,7 @@ class HomeFragment : Fragment() {
     private fun deleteContact(contact: VipContact) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.remove_contact_title)
-            .setMessage(getString(R.string.remove_contact_msg, contact.name, contact.number))
+            .setMessage(getString(R.string.remove_contact_msg, contact.name))
             .setPositiveButton(R.string.btn_remove) { _, _ ->
                 PeerStore(requireContext()).remove(contact.number)
                 prefs.saveContacts(prefs.getContacts().filterNot { it.number == contact.number })
