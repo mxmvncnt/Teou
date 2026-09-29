@@ -16,6 +16,14 @@
     <string name="p2p_peers_header">Paired contacts</string>
     <string name="p2p_btn_scan">Pair a contact (scan QR)</string>
     <string name="p2p_peers_empty">No paired contacts yet.</string>
+    <string name="followers_title">People who can see me</string>
+    <string name="followers_empty">Nobody can see your location.</string>
+    <string name="paired_off_title">Paired, not sharing</string>
+    <string name="requests_title">Connection requests</string>
+    <string name="requests_hint">Someone here used your pairing link or QR. To allow them, pair their QR from Home +, then turn on sharing for them above. Until then they see nothing.</string>
+    <string name="requests_empty">No connection requests.</string>
+    <string name="request_subtitle">Attempts: %1$d · Last: %2$s</string>
+    <string name="request_dismiss">Dismiss request</string>
     <string name="p2p_pair_invalid">Invalid pairing QR.</string>
     <string name="p2p_pair_no_contacts">Add a contact in the Home screen first.</string>
     <string name="p2p_pair_choose_contact">Link this QR to which contact?</string>

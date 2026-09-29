@@ -44,6 +44,7 @@ class PeerStore(private val context: Context) {
         val normalized = peer.copy(number = PhoneUtils.normalize(peer.number))
         val target = normalized.number
         get(target)?.takeIf { it.idPub != normalized.idPub }?.let { ReceivedLocationStore(context).remove(it) }
+        FollowerAttempts(context).remove(normalized.idPub)
         persist(all().filter { PhoneUtils.normalize(it.number) != target } + normalized)
     }
 

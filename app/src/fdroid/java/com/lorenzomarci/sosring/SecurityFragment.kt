@@ -2,6 +2,7 @@ package com.lorenzomarci.sosring
 
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
@@ -35,6 +36,10 @@ class SecurityFragment : Fragment() {
         }
     }
 
+    private val attemptsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        activity?.runOnUiThread { if (_binding != null) refreshRequests() }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSecurityBinding.inflate(inflater, container, false)
         return binding.root
@@ -53,6 +58,12 @@ class SecurityFragment : Fragment() {
         super.onResume()
         refreshStatus()
         refreshPeerList()
+        FollowerAttempts(requireContext()).register(attemptsListener)
+    }
+
+    override fun onPause() {
+        FollowerAttempts(requireContext()).unregister(attemptsListener)
+        super.onPause()
     }
 
     override fun onDestroyView() {
@@ -205,20 +216,80 @@ class SecurityFragment : Fragment() {
         val peers = PeerStore(requireContext()).all()
         val contacts = prefs.getContacts()
         binding.tvPeersEmpty.visibility = if (peers.isEmpty()) View.VISIBLE else View.GONE
-        peers.forEach { peer ->
-            val row = LayoutInflater.from(requireContext()).inflate(R.layout.item_peer, container, false)
-            val peerName = contacts.firstOrNull { PhoneUtils.matches(it.number, peer.number) }?.name
-                ?: fingerprintOf(peer.idPub)
-            row.findViewById<TextView>(R.id.tvPeerNumber).text = peerName
-            row.findViewById<TextView>(R.id.tvPeerFingerprint).text =
-                getString(R.string.p2p_peer_fingerprint, fingerprintOf(peer.idPub))
-            row.findViewById<View>(R.id.btnRemovePeer).setOnClickListener { confirmRemovePeer(peer) }
-            val locationEnabled = contacts.firstOrNull { PhoneUtils.matches(it.number, peer.number) }?.locationEnabled ?: false
-            val locationSwitch = row.findViewById<MaterialSwitch>(R.id.swPeerLocation)
-            locationSwitch.setOnCheckedChangeListener(null)
-            locationSwitch.isChecked = locationEnabled
-            locationSwitch.setOnCheckedChangeListener { _, isChecked ->
-                prefs.updateContactLocationEnabled(peer.number, isChecked)
+        if (peers.isNotEmpty()) {
+            val (followers, others) = peers.partition { peer ->
+                contacts.firstOrNull { PhoneUtils.matches(it.number, peer.number) }?.locationEnabled == true
+            }
+            container.addView(sectionHeader(getString(R.string.followers_title)))
+            if (followers.isEmpty()) {
+                container.addView(sectionEmpty(getString(R.string.followers_empty)))
+            } else {
+                followers.forEach { addPeerRow(container, it, contacts) }
+            }
+            if (others.isNotEmpty()) {
+                container.addView(sectionHeader(getString(R.string.paired_off_title)))
+                others.forEach { addPeerRow(container, it, contacts) }
+            }
+        }
+        refreshRequests()
+    }
+
+    private fun sectionHeader(text: String): TextView {
+        val density = resources.displayMetrics.density
+        return TextView(requireContext()).apply {
+            this.text = text
+            textSize = 12f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setTextColor(requireContext().getColor(R.color.ink_secondary))
+            setPadding(0, (12 * density).toInt(), 0, (2 * density).toInt())
+        }
+    }
+
+    private fun sectionEmpty(text: String): TextView {
+        return TextView(requireContext()).apply {
+            this.text = text
+            textSize = 13f
+            setTextColor(requireContext().getColor(R.color.ink_secondary))
+            setPadding(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
+        }
+    }
+
+    private fun addPeerRow(container: LinearLayout, peer: Peer, contacts: List<VipContact>) {
+        val row = LayoutInflater.from(requireContext()).inflate(R.layout.item_peer, container, false)
+        val peerName = contacts.firstOrNull { PhoneUtils.matches(it.number, peer.number) }?.name
+            ?: fingerprintOf(peer.idPub)
+        row.findViewById<TextView>(R.id.tvPeerNumber).text = peerName
+        row.findViewById<TextView>(R.id.tvPeerFingerprint).text =
+            getString(R.string.p2p_peer_fingerprint, fingerprintOf(peer.idPub))
+        row.findViewById<View>(R.id.btnRemovePeer).setOnClickListener { confirmRemovePeer(peer) }
+        val locationEnabled = contacts.firstOrNull { PhoneUtils.matches(it.number, peer.number) }?.locationEnabled ?: false
+        val locationSwitch = row.findViewById<MaterialSwitch>(R.id.swPeerLocation)
+        locationSwitch.setOnCheckedChangeListener(null)
+        locationSwitch.isChecked = locationEnabled
+        locationSwitch.setOnCheckedChangeListener { _, isChecked ->
+            prefs.updateContactLocationEnabled(peer.number, isChecked)
+            refreshPeerList()
+        }
+        container.addView(row)
+    }
+
+    private fun refreshRequests() {
+        val container = binding.requestsContainer
+        container.removeAllViews()
+        val attempts = FollowerAttempts(requireContext()).all()
+        binding.tvRequestsEmpty.visibility = if (attempts.isEmpty()) View.VISIBLE else View.GONE
+        val dateFormat = java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault())
+        attempts.forEach { attempt ->
+            val row = LayoutInflater.from(requireContext()).inflate(R.layout.item_request, container, false)
+            row.findViewById<TextView>(R.id.tvRequestFingerprint).text = fingerprintOf(attempt.idPub)
+            row.findViewById<TextView>(R.id.tvRequestSubtitle).text = getString(
+                R.string.request_subtitle,
+                attempt.count,
+                dateFormat.format(java.util.Date(attempt.lastSeen))
+            )
+            row.findViewById<View>(R.id.btnDismissRequest).setOnClickListener {
+                FollowerAttempts(requireContext()).remove(attempt.idPub)
+                refreshRequests()
             }
             container.addView(row)
         }

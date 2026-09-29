@@ -23,7 +23,12 @@ object P2pMessaging {
         val peerStore = PeerStore(context)
         val opened = P2pEnvelope.open(envelope) { peerStore.isTrusted(it) }
         if (opened == null) {
-            Log.w(TAG, "Envelope rejected (untrusted sender or invalid signature)")
+            // Signature-valid but unknown sender: someone holding our endpoint tried to reach us.
+            // Recorded for the follower inbox; never acted on.
+            P2pEnvelope.openVerified(envelope)?.let {
+                FollowerAttempts(context).record(WebPushCrypto.b64enc(it.senderIdPub))
+                Log.i(TAG, "Connection attempt recorded from unknown identity")
+            } ?: Log.w(TAG, "Envelope rejected (invalid signature or malformed)")
             return
         }
         val sender = peerStore.byIdPub(opened.senderIdPub)
