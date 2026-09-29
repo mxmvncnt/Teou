@@ -9,6 +9,7 @@ object PushProvider {
 
     fun requestLocation(context: Context, contact: VipContact): Boolean {
         val peer = PeerStore(context).get(contact.number) ?: return false
+        ReceivedLocationStore(context).requested(peer)
         Thread { P2pMessaging.requestLocation(context.applicationContext, peer) }.start()
         return true
     }

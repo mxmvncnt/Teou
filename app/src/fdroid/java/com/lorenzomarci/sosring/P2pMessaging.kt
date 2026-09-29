@@ -83,6 +83,7 @@ object P2pMessaging {
 
     private fun showLocation(context: Context, sender: Peer, payload: ByteArray) {
         val loc = P2pMessageFactory.parseLocResponse(payload) ?: return
+        ReceivedLocationStore(context).save(sender, loc.lat, loc.lon)
         val label = URLEncoder.encode(sender.number, "UTF-8")
         val geoUri = Uri.parse("geo:${loc.lat},${loc.lon}?q=${loc.lat},${loc.lon}($label)")
         val mapIntent = Intent(Intent.ACTION_VIEW, geoUri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }

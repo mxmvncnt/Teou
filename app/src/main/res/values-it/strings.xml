@@ -197,7 +197,11 @@
     <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_contacts">Contatti</string>
-    <string name="home_map_placeholder">Le posizioni dei tuoi contatti appariranno qui su una mappa.</string>
+    <string name="home_map_placeholder">Nessuna posizione ricevuta. Richiedine una da Contatti.</string>
+    <plurals name="last_seen_minutes">
+        <item quantity="one">Visto l’ultima volta %d minuto fa</item>
+        <item quantity="other">Visto l’ultima volta %d minuti fa</item>
+    </plurals>
     <string name="nav_settings">Impostazioni</string>
     <string name="nav_location_log">Log posizioni</string>
     <string name="nav_privacy">Privacy e licenze</string>

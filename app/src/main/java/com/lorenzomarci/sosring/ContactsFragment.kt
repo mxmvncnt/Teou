@@ -107,7 +107,12 @@ class ContactsFragment : Fragment() {
                     Toast.makeText(requireContext(), R.string.contact_invalid_input, Toast.LENGTH_LONG).show()
                 } else {
                     if (position == null) contacts.add(VipContact(n, p))
-                    else contacts[position] = contact!!.copy(name = n, number = p)
+                    else {
+                        if (PhoneUtils.normalize(contact!!.number) != PhoneUtils.normalize(p)) {
+                            PeerStore(requireContext()).remove(contact.number)
+                        }
+                        contacts[position] = contact.copy(name = n, number = p)
+                    }
                     saveContacts()
                 }
             }
@@ -120,6 +125,7 @@ class ContactsFragment : Fragment() {
             .setTitle(R.string.remove_contact_title)
             .setMessage(getString(R.string.remove_contact_msg, contact.name, contact.number))
             .setPositiveButton(R.string.btn_remove) { _, _ ->
+                PeerStore(requireContext()).remove(contact.number)
                 contacts.removeAt(position)
                 saveContacts()
             }

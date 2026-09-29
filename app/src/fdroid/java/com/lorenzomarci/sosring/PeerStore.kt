@@ -12,7 +12,7 @@ data class Peer(
     val idPub: String
 )
 
-class PeerStore(context: Context) {
+class PeerStore(private val context: Context) {
 
     private val prefs = context.getSharedPreferences("sosring_peers", Context.MODE_PRIVATE)
 
@@ -43,11 +43,13 @@ class PeerStore(context: Context) {
     fun save(peer: Peer) {
         val normalized = peer.copy(number = PhoneUtils.normalize(peer.number))
         val target = normalized.number
+        get(target)?.takeIf { it.idPub != normalized.idPub }?.let { ReceivedLocationStore(context).remove(it) }
         persist(all().filter { PhoneUtils.normalize(it.number) != target } + normalized)
     }
 
     fun remove(number: String) {
         val target = PhoneUtils.normalize(number)
+        get(target)?.let { ReceivedLocationStore(context).remove(it) }
         persist(all().filter { PhoneUtils.normalize(it.number) != target })
     }
 
