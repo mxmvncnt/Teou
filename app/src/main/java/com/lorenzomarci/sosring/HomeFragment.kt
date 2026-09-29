@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.lorenzomarci.sosring.databinding.FragmentHomeBinding
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraUpdateFactory
@@ -306,7 +307,9 @@ class HomeFragment : Fragment() {
     private fun editContact(contact: VipContact?, pendingPayload: PairPayload? = null) {
         val view = layoutInflater.inflate(R.layout.dialog_add_number, null)
         val name = view.findViewById<EditText>(R.id.etDialogName)
+        val locationSharing = view.findViewById<MaterialSwitch>(R.id.swDialogLocationSharing)
         name.setText(contact?.name.orEmpty())
+        locationSharing.visibility = if (contact == null) View.VISIBLE else View.GONE
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(if (contact == null) R.string.add_choice_title else R.string.edit_contact_title)
             .setView(view)
@@ -316,9 +319,9 @@ class HomeFragment : Fragment() {
                 if (n.isBlank() || contacts.any { it.number != contact?.number && it.name.equals(n, ignoreCase = true) }) {
                     Toast.makeText(requireContext(), R.string.contact_invalid_input, Toast.LENGTH_LONG).show()
                 } else if (contact == null && pendingPayload != null) {
-                    pairNewContact(n, pendingPayload)
+                    pairNewContact(n, pendingPayload, locationSharing.isChecked)
                 } else if (contact == null) {
-                    contacts.add(VipContact(n, java.util.UUID.randomUUID().toString()))
+                    contacts.add(VipContact(n, java.util.UUID.randomUUID().toString(), locationSharing.isChecked))
                     prefs.saveContacts(contacts)
                     refresh()
                 } else {
@@ -379,11 +382,11 @@ class HomeFragment : Fragment() {
         editContact(null, payload)
     }
 
-    private fun pairNewContact(name: String, payload: PairPayload) {
+    private fun pairNewContact(name: String, payload: PairPayload, locationEnabled: Boolean) {
         val idPub = payload.idPub ?: return
         val duplicateOwner = PeerStore(requireContext()).all().firstOrNull { it.idPub == idPub }
         if (duplicateOwner == null) {
-            savePairedContact(name, payload)
+            savePairedContact(name, payload, locationEnabled)
             return
         }
         val ownerName = prefs.getContacts()
@@ -392,12 +395,14 @@ class HomeFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.p2p_duplicate_identity_title)
             .setMessage(getString(R.string.p2p_duplicate_identity_msg, ownerName, name, fingerprintOf(idPub)))
-            .setPositiveButton(R.string.p2p_duplicate_identity_confirm) { _, _ -> savePairedContact(name, payload) }
+            .setPositiveButton(R.string.p2p_duplicate_identity_confirm) { _, _ ->
+                savePairedContact(name, payload, locationEnabled)
+            }
             .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 
-    private fun savePairedContact(name: String, payload: PairPayload) {
+    private fun savePairedContact(name: String, payload: PairPayload, locationEnabled: Boolean) {
         val idPub = payload.idPub ?: return
         val contacts = prefs.getContacts().toMutableList()
         if (contacts.any { it.name.equals(name, ignoreCase = true) }) {
@@ -405,7 +410,7 @@ class HomeFragment : Fragment() {
             return
         }
         val id = java.util.UUID.randomUUID().toString()
-        val contact = VipContact(name, id)
+        val contact = VipContact(name, id, locationEnabled)
         contacts.add(contact)
         prefs.saveContacts(contacts)
         PeerStore(requireContext()).save(
