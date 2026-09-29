@@ -1,7 +1,5 @@
 package com.lorenzomarci.sosring
 
-import android.app.Activity
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -14,7 +12,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.zxing.BarcodeFormat
@@ -29,13 +26,6 @@ class SecurityFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var prefs: PrefsManager
 
-    private val qrCameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val content = result.data?.getStringExtra(QrScannerActivity.EXTRA_QR_TEXT)
-        if (result.resultCode == Activity.RESULT_OK && !content.isNullOrBlank()) {
-            handleScannedPeer(content.trim())
-        }
-    }
-
     private val attemptsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
         activity?.runOnUiThread { if (_binding != null) refreshRequests() }
     }
@@ -49,9 +39,6 @@ class SecurityFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prefs = PrefsManager(requireContext())
         binding.btnShowMyQr.setOnClickListener { showMyQrDialog() }
-        binding.btnScanPeer.setOnClickListener {
-            qrCameraLauncher.launch(Intent(requireContext(), QrScannerActivity::class.java))
-        }
     }
 
     override fun onResume() {
@@ -139,75 +126,6 @@ class SecurityFragment : Fragment() {
                     .show()
             }
         }.start()
-    }
-
-    private fun handleScannedPeer(content: String) {
-        val payload = UnifiedPushPairing.decode(content)
-        if (payload == null || payload.idPub.isNullOrBlank()) {
-            Toast.makeText(requireContext(), getString(R.string.p2p_pair_invalid), Toast.LENGTH_LONG).show()
-            return
-        }
-        val contacts = prefs.getContacts()
-        if (contacts.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.p2p_pair_no_contacts), Toast.LENGTH_LONG).show()
-            return
-        }
-        val names = contacts.map { it.name }.toTypedArray()
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.p2p_pair_choose_contact)
-            .setItems(names) { _, which ->
-                val contact = contacts[which]
-                val store = PeerStore(requireContext())
-                val duplicateOwner = store.all().firstOrNull {
-                    it.idPub == payload.idPub && !PhoneUtils.matches(it.number, contact.number)
-                }
-                val existing = store.get(contact.number)
-                when {
-                    duplicateOwner != null -> confirmDuplicateIdentity(contact, duplicateOwner, payload)
-                    existing != null && existing.idPub != payload.idPub -> confirmRepair(contact, existing, payload)
-                    else -> savePeer(contact, payload)
-                }
-            }
-            .setNegativeButton(R.string.btn_cancel, null)
-            .show()
-    }
-
-    private fun confirmDuplicateIdentity(contact: VipContact, other: Peer, payload: PairPayload) {
-        val fingerprint = fingerprintOf(payload.idPub!!)
-        val otherName = prefs.getContacts()
-            .firstOrNull { PhoneUtils.matches(it.number, other.number) }?.name
-            ?: fingerprintOf(other.idPub)
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.p2p_duplicate_identity_title)
-            .setMessage(getString(R.string.p2p_duplicate_identity_msg, otherName, contact.name, fingerprint))
-            .setPositiveButton(R.string.p2p_duplicate_identity_confirm) { _, _ -> savePeer(contact, payload) }
-            .setNegativeButton(R.string.btn_cancel, null)
-            .show()
-    }
-
-    private fun confirmRepair(contact: VipContact, existing: Peer, payload: PairPayload) {
-        val oldFingerprint = fingerprintOf(existing.idPub)
-        val newFingerprint = fingerprintOf(payload.idPub!!)
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.p2p_repair_title)
-            .setMessage(getString(R.string.p2p_repair_msg, contact.name, oldFingerprint, newFingerprint))
-            .setPositiveButton(R.string.p2p_repair_confirm) { _, _ -> savePeer(contact, payload) }
-            .setNegativeButton(R.string.btn_cancel, null)
-            .show()
-    }
-
-    private fun savePeer(contact: VipContact, payload: PairPayload) {
-        PeerStore(requireContext()).save(
-            Peer(
-                number = contact.number,
-                endpoint = payload.endpoint,
-                p256dh = payload.p256dh,
-                auth = payload.auth,
-                idPub = payload.idPub!!
-            )
-        )
-        Toast.makeText(requireContext(), getString(R.string.p2p_pair_saved, contact.name), Toast.LENGTH_SHORT).show()
-        refreshPeerList()
     }
 
     private fun refreshPeerList() {

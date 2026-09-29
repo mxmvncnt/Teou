@@ -14,7 +14,6 @@
     <string name="p2p_my_qr_title">My pairing QR</string>
     <string name="p2p_my_qr_hint">Let the other person scan this to pair with you.</string>
     <string name="p2p_peers_header">Paired contacts</string>
-    <string name="p2p_btn_scan">Pair a contact (scan QR)</string>
     <string name="p2p_peers_empty">No paired contacts yet.</string>
     <string name="followers_title">People who can see me</string>
     <string name="followers_empty">Nobody can see your location.</string>
@@ -25,8 +24,6 @@
     <string name="request_subtitle">Attempts: %1$d · Last: %2$s</string>
     <string name="request_dismiss">Dismiss request</string>
     <string name="p2p_pair_invalid">Invalid pairing QR.</string>
-    <string name="p2p_pair_no_contacts">Add a contact in the Home screen first.</string>
-    <string name="p2p_pair_choose_contact">Link this QR to which contact?</string>
     <string name="p2p_pair_saved">Paired with %1$s</string>
     <string name="pair_copy_link">Copy pairing link</string>
     <string name="pair_link_copied">Pairing link copied</string>
@@ -38,9 +35,6 @@
 
     <string name="p2p_peer_fingerprint">Identity: %1$s</string>
     <string name="p2p_fingerprint_label">Verify this code out-of-band before trusting:</string>
-    <string name="p2p_repair_title">Identity changed</string>
-    <string name="p2p_repair_msg">This will replace an existing trusted identity for %1$s.\n\nOld identity: %2$s\nNew identity: %3$s\n\nOnly continue if you expected this contact to re-pair. Otherwise this could be an impersonation attempt.</string>
-    <string name="p2p_repair_confirm">Replace identity</string>
     <string name="p2p_duplicate_identity_title">Identity already in use</string>
     <string name="p2p_duplicate_identity_msg">This identity is already paired with %1$s.\n\nLinking it to %2$s as well means both contacts would share the same identity: %3$s\n\nOnly continue if you expected this. Otherwise this could be an impersonation attempt.</string>
     <string name="p2p_duplicate_identity_confirm">Link anyway</string>
