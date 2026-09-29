@@ -11,24 +11,28 @@ import org.unifiedpush.android.connector.UnifiedPush
 
 object PushProvider {
 
+    @Synchronized
     fun requestLocation(context: Context, contact: VipContact): Boolean {
+        if (locationBlock(context, contact) != null) return false
         val peer = PeerStore(context).get(contact.number) ?: return false
         ReceivedLocationStore(context).requested(peer)
         Thread { P2pMessaging.requestLocation(context.applicationContext, peer) }.start()
         return true
     }
 
-    fun canRequestLocation(context: Context, number: String): Boolean {
-        val registered = !UnifiedPushStore(context).endpointUrl.isNullOrBlank()
-        val peerPaired = PeerStore(context).get(number) != null
-        return P2pLocationReadiness.check(registered, peerPaired) == P2pBlock.NONE
-    }
+    fun canRequestLocation(context: Context, number: String): Boolean = locationBlock(context, number) == null
 
-    fun locationBlock(context: Context, contact: VipContact): String? {
+    fun locationBlock(context: Context, contact: VipContact): String? = locationBlock(context, contact.number)
+
+    private fun locationBlock(context: Context, number: String): String? {
         val registered = !UnifiedPushStore(context).endpointUrl.isNullOrBlank()
-        val peerPaired = PeerStore(context).get(contact.number) != null
-        return when (P2pLocationReadiness.check(registered, peerPaired)) {
-            P2pBlock.NONE -> null
+        val peer = PeerStore(context).get(number)
+        return when (P2pLocationReadiness.check(registered, peer != null)) {
+            P2pBlock.NONE -> {
+                val remaining = peer?.let { ReceivedLocationStore(context).requestCooldownRemaining(it) } ?: 0L
+                if (remaining > 0L) context.getString(R.string.location_request_cooldown, (remaining + 999L) / 1_000L)
+                else null
+            }
             P2pBlock.NOT_REGISTERED -> context.getString(R.string.p2p_block_not_registered)
             P2pBlock.NOT_PAIRED -> context.getString(R.string.p2p_block_not_paired)
         }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import org.json.JSONObject
 import com.mxmvncnt.teou.messaging.Peer
+import com.mxmvncnt.teou.messaging.P2pFreshness
 
 data class ReceivedLocation(val lat: Double, val lon: Double, val receivedAt: Long)
 
@@ -11,8 +12,13 @@ class ReceivedLocationStore(context: Context) {
     private val prefs = context.getSharedPreferences("received_locations", Context.MODE_PRIVATE)
 
     fun requested(peer: Peer) {
-        prefs.edit().putLong("request_${peer.idPub}", System.currentTimeMillis()).apply()
+        val now = System.currentTimeMillis()
+        prefs.edit().putLong("request_${peer.idPub}", now)
+            .putLong("cooldown_${peer.number}", now).apply()
     }
+
+    fun requestCooldownRemaining(peer: Peer, now: Long = System.currentTimeMillis()): Long =
+        P2pFreshness.requestCooldownRemaining(prefs.getLong("cooldown_${peer.number}", 0L), now)
 
     fun save(peer: Peer, lat: Double, lon: Double) {
         prefs.edit().putString("location_${peer.idPub}", JSONObject()
@@ -34,7 +40,8 @@ class ReceivedLocationStore(context: Context) {
         unansweredRequest(prefs.getLong("request_${peer.idPub}", 0L), location.receivedAt, now)
 
     fun remove(peer: Peer) {
-        prefs.edit().remove("location_${peer.idPub}").remove("request_${peer.idPub}").apply()
+        prefs.edit().remove("location_${peer.idPub}").remove("request_${peer.idPub}")
+            .remove("cooldown_${peer.number}").apply()
     }
 
     fun register(listener: SharedPreferences.OnSharedPreferenceChangeListener) =

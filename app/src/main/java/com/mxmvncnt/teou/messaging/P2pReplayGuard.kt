@@ -16,6 +16,10 @@ object P2pFreshness {
     const val SKEW_WINDOW_MS = 5L * 60L * 1000L
     const val MIN_REQUEST_INTERVAL_MS = 30L * 1000L
 
+    fun requestCooldownRemaining(lastRequestAt: Long, now: Long): Long =
+        if (lastRequestAt <= 0L) 0L
+        else (MIN_REQUEST_INTERVAL_MS - (now - lastRequestAt).coerceAtLeast(0L)).coerceAtLeast(0L)
+
     fun evaluate(
         ts: Long?,
         now: Long,
@@ -27,7 +31,7 @@ object P2pFreshness {
         if (ts < now - SKEW_WINDOW_MS) return FreshnessVerdict.TOO_OLD
         if (ts > now + SKEW_WINDOW_MS) return FreshnessVerdict.TOO_FUTURE
         if (ts <= lastSeenTs) return FreshnessVerdict.NOT_MONOTONIC
-        if (enforceRateLimit && lastHonoredTs > 0L && now - lastHonoredTs < MIN_REQUEST_INTERVAL_MS) {
+        if (enforceRateLimit && requestCooldownRemaining(lastHonoredTs, now) > 0L) {
             return FreshnessVerdict.RATE_LIMITED
         }
         return FreshnessVerdict.ACCEPT

@@ -66,6 +66,7 @@ class HomeFragment : Fragment() {
     private var deviceLocation: Location? = null
     private var deviceHelper: LocationHelper? = null
     private val refreshHandler = Handler(Looper.getMainLooper())
+    private val cooldownRefresh = Runnable { if (_binding != null) refresh() }
     private val refreshRunnable = object : Runnable {
         override fun run() {
             if (_binding != null) { refresh(); updateDevicePin() }
@@ -220,6 +221,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onPause() {
+        refreshHandler.removeCallbacks(cooldownRefresh)
         refreshHandler.removeCallbacks(refreshRunnable)
         ReceivedLocationStore(requireContext()).unregister(storeListener)
         deviceHelper?.stop()
@@ -231,6 +233,7 @@ class HomeFragment : Fragment() {
     override fun onStop() { _binding?.mapView?.onStop(); super.onStop() }
 
     override fun onDestroyView() {
+        refreshHandler.removeCallbacks(cooldownRefresh)
         BottomSheetBehavior.from(binding.contactsSheet).removeBottomSheetCallback(sheetCallback)
         deviceHelper?.stop()
         deviceHelper = null
@@ -492,10 +495,13 @@ class HomeFragment : Fragment() {
 
     private fun refresh() {
         val context = context ?: return
+        refreshHandler.removeCallbacks(cooldownRefresh)
         val now = System.currentTimeMillis()
         val pins = currentPins()
         val contacts = prefs.getContacts()
         val peers = PeerStore(context).all().associateBy { PhoneUtils.normalize(it.number) }
+        val store = ReceivedLocationStore(context)
+        var nextCooldownExpiry: Long? = null
         val pinByNumber = pins.associateBy { PhoneUtils.normalize(it.contact.number) }
 
         val scrollY = binding.sheetScroll.scrollY
@@ -507,6 +513,9 @@ class HomeFragment : Fragment() {
             })
         }
         contacts.forEach { contact ->
+            val peer = peers[PhoneUtils.normalize(contact.number)]
+            val cooldown = peer?.let { store.requestCooldownRemaining(it, now) } ?: 0L
+            if (cooldown > 0L) nextCooldownExpiry = minOf(nextCooldownExpiry ?: cooldown, cooldown)
             val pin = pinByNumber[PhoneUtils.normalize(contact.number)]
             val row = layoutInflater.inflate(R.layout.home_contact_item, binding.locationSummary, false)
             val name = row.findViewById<TextView>(R.id.tvMapContactName)
@@ -531,9 +540,17 @@ class HomeFragment : Fragment() {
             }
             row.findViewById<View>(R.id.btnMapRefresh).apply {
                 contentDescription = getString(R.string.map_refresh_contact, contact.name)
-                isEnabled = pin != null
-                alpha = if (pin == null) 0.35f else 1f
+                isEnabled = Push.canRequestLocation(context, contact.number)
+                alpha = if (isEnabled) 1f else 0.35f
                 setOnClickListener { requestLocation(contact) }
+                isClickable = cooldown == 0L
+                importantForAccessibility = if (cooldown > 0L) View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+            }
+            row.findViewById<View>(R.id.mapRefreshAction).apply {
+                setOnClickListener(if (cooldown > 0L) View.OnClickListener { requestLocation(contact) } else null)
+                contentDescription = if (cooldown > 0L) getString(R.string.map_refresh_contact, contact.name) + ", " +
+                    getString(R.string.location_request_cooldown, (cooldown + 999L) / 1_000L) else null
             }
             row.findViewById<View>(R.id.btnMapLocate).apply {
                 contentDescription = getString(R.string.map_find_contact, contact.name)
@@ -560,6 +577,7 @@ class HomeFragment : Fragment() {
             }
             binding.locationSummary.addView(row)
         }
+        nextCooldownExpiry?.let { refreshHandler.postDelayed(cooldownRefresh, it) }
         binding.sheetScroll.post {
             if (_binding != null) binding.sheetScroll.scrollTo(0, scrollY)
         }

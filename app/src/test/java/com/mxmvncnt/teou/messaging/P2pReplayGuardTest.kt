@@ -146,4 +146,14 @@ class P2pReplayGuardTest {
             )
         )
     }
+
+    @Test
+    fun outboundCooldownUsesReceiverBoundaryAndHandlesClockRollback() {
+        val interval = P2pFreshness.MIN_REQUEST_INTERVAL_MS
+        assertEquals(0L, P2pFreshness.requestCooldownRemaining(0L, now))
+        assertEquals(interval, P2pFreshness.requestCooldownRemaining(now, now))
+        assertEquals(1L, P2pFreshness.requestCooldownRemaining(now - interval + 1L, now))
+        assertEquals(0L, P2pFreshness.requestCooldownRemaining(now - interval, now))
+        assertEquals(interval, P2pFreshness.requestCooldownRemaining(now + 1L, now))
+    }
 }

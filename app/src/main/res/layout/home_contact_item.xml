@@ -29,6 +29,11 @@
             android:textAppearance="?attr/textAppearanceBodySmall" />
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/mapRefreshAction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnMapRefresh"
         style="@style/Widget.Material3.Button.IconButton"
@@ -36,6 +41,8 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/map_refresh_contact"
         app:icon="@drawable/ic_refresh" />
+
+    </FrameLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnMapLocate"
