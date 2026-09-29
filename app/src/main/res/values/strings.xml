@@ -18,7 +18,6 @@
     <string name="home_service_title">Call monitoring</string>
     <string name="home_service_state_on">Active</string>
     <string name="home_service_state_off">Paused</string>
-    <string name="home_service_hint_off">Turn on monitoring to make VIPs ring even in silent mode.</string>
     <string name="hero_silent">Silent</string>
     <string name="hero_vibrate">Vibrate</string>
     <string name="hero_dnd">DND</string>
@@ -31,7 +30,6 @@
     <string name="authorize">Authorize</string>
     <string name="configure">Configure</string>
     <string name="volume_label">Ringtone volume</string>
-    <string name="contacts_title">VIP Contacts</string>
     <string name="add_contact">Add contact</string>
     <string name="status_granted">Granted</string>
     <string name="status_missing">Missing</string>
@@ -40,10 +38,9 @@
     <string name="grant_perms_first">Grant all permissions first</string>
     <string name="monitoring_on">Monitoring activated</string>
     <string name="monitoring_off">Monitoring deactivated</string>
-    <string name="add_choice_title">Add VIP contact</string>
+    <string name="add_choice_title">Add contact</string>
     <string name="choice_from_contacts">Pick from contacts</string>
     <string name="choice_manual">Enter manually</string>
-    <string name="confirm_contact_title">Confirm VIP contact</string>
     <string name="btn_add">Add</string>
     <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>
@@ -58,19 +55,14 @@
     <string name="contact_numbers_title">Select numbers for %1$s</string>
     <string name="contact_number_option">%1$s — %2$s</string>
     <string name="contact_numbers_none_selected">Select at least one number.</string>
-    <string name="contact_numbers_already_added">The selected numbers are already in the VIP list.</string>
     <plurals name="contact_numbers_added">
         <item quantity="one">%1$d number added</item>
         <item quantity="other">%1$d numbers added</item>
     </plurals>
     <string name="dnd_dialog_title">Do Not Disturb permission</string>
-    <string name="dnd_dialog_msg">To disable \"Do Not Disturb\" when a VIP call arrives, you need to authorize SOS Ring in system settings.\n\nPress OK to open settings, then find \"SOS Ring\" and enable the toggle.</string>
     <string name="btn_open_settings">Open settings</string>
     <string name="notif_service_title">SOS Ring active</string>
-    <string name="notif_service_text">Monitoring %1$d VIP contacts</string>
     <string name="notif_override_title">Ringtone forced!</string>
-    <string name="notif_override_text">VIP call incoming — ringtone activated</string>
-    <string name="empty_contacts">No VIP contacts yet. Tap + to add one.</string>
     <!-- Quiet Hours -->
     <string name="quiet_hours_title">Quiet Hours</string>
     <string name="quiet_hours_subtitle">SOS Ring pauses during these times</string>
@@ -95,7 +87,6 @@
     <string name="day_sun">Sun</string>
     <!-- Location Sharing -->
     <string name="location_title">Location Sharing</string>
-    <string name="location_subtitle">Share position with VIP contacts who have SOS Ring</string>
     <string name="location_your_number">Your phone number</string>
     <string name="location_your_number_hint">+39…</string>
     <string name="location_server_label">Server: %1$s</string>
@@ -168,12 +159,7 @@
     <string name="mute_button">Pause monitoring</string>
     <string name="mute_button_cancel">Resume monitoring</string>
     <string name="mute_subtitle">Temporary pause 1–12 h</string>
-    <string name="mute_dialog_title">Pause VIP alerts</string>
-    <string name="mute_dialog_message">VIP ringtone and message sounds will be disabled for the selected duration. GPS location sharing will remain active.</string>
     <string name="mute_dialog_hours">hours</string>
-    <string name="mute_countdown">VIP alerts paused — resume in %1$dh %2$dm</string>
-    <string name="mute_activated">VIP alerts paused for %1$d hours</string>
-    <string name="mute_cancelled">VIP alerts resumed</string>
     <!-- Settings -->
     <string name="settings_sound_title">Override sound</string>
     <string name="settings_sound_ringtone">Phone ringtone</string>
@@ -262,7 +248,6 @@
     <!-- Privacy -->
     <string name="privacy_title">Privacy &amp; licenses</string>
     <string name="privacy_data_title">Data handling</string>
-    <string name="privacy_data_body">SOS Ring processes call and contact data on your device. If you enable VIP message alerts, notification metadata is processed locally to identify paired direct conversations; message text, contact names and phone numbers from notifications are never stored. Only hashed conversation identifiers and technical deduplication fingerprints are saved.\n\nLocation sharing uses a peer-to-peer channel (ntfy). Coordinates are encrypted end-to-end with AES-256-GCM using a per-device key generated locally and shared with trusted family via QR.\n\nThe server (ntfy) never knows your key. If you lose your phone without a key backup, encrypted messages cannot be recovered.\n\nThis is NOT forward-secret and does NOT protect against a compromised phone, malware, screenshots, or keyloggers.\n\nNo analytics, no tracking, no ads.</string>
     <string name="privacy_license_title">License</string>
     <string name="privacy_license_body">SOS Ring is free software licensed under GPL-3.0-or-later.\n\nSource code: github.com/JackRushante/SOSRing</string>
     <string name="privacy_contact_title">Contact</string>
@@ -278,8 +263,6 @@
     <string name="location_status_rate_limited">Server busy, try again shortly</string>
     <string name="location_service_not_running">Service not running: enable the service in Home and check the key in Security</string>
     <string name="perm_revoked_notif_title">SOS Ring needs attention</string>
-    <string name="perm_revoked_notif_text">Permissions revoked: VIP ringing is not working. Open SOS Ring and grant them again.</string>
-    <string name="home_warn_perms_revoked">Permissions revoked: VIP ringing is not working.</string>
     <string name="home_warn_auto_revoke">Android may remove permissions if you never open the app.</string>
     <string name="home_warn_battery_unrestricted">Battery optimization may kill call monitoring. Set SOS Ring to Unrestricted battery use.</string>
     <string name="home_warn_action_fix">Fix</string>
@@ -301,22 +284,15 @@
     <string name="backup_import_password_message">Enter the backup password.</string>
     <string name="backup_import_wrong_password">Wrong password or corrupted file</string>
     <string name="backup_import_legacy_rejected">This backup is not encrypted and is no longer supported. Create a new backup.</string>
-    <!-- WhatsApp VIP alerts (internal flavor only) -->
-    <string name="whatsapp_listener_label">SOS Ring — WhatsApp VIP alerts</string>
     <string name="whatsapp_pair">Pair WhatsApp chat</string>
     <string name="whatsapp_unpair">Disable WhatsApp alert</string>
     <string name="whatsapp_pair_cancel">Cancel WhatsApp pairing</string>
     <string name="whatsapp_access_title">Notification access</string>
-    <string name="whatsapp_access_message">To recognize messages from this WhatsApp chat, allow SOS Ring to access notifications. Then return here and send a direct WhatsApp message from the VIP. SOS Ring processes only WhatsApp metadata and never stores message text.</string>
     <string name="whatsapp_pair_title">Pair WhatsApp chat</string>
-    <string name="whatsapp_pair_message">With WhatsApp closed, send a direct message from %1$s. The next direct WhatsApp conversation will be paired with this VIP.</string>
     <string name="whatsapp_pair_success">WhatsApp alerts enabled for %1$s</string>
     <string name="whatsapp_unpaired">WhatsApp alerts disabled for %1$s</string>
     <string name="whatsapp_pair_cancelled">WhatsApp pairing cancelled</string>
 
-    <!-- VIP message alerts (internal flavor only) -->
-    <string name="message_listener_label">SOS Ring — VIP message alerts</string>
-    <string name="message_alerts_menu">VIP message alerts</string>
     <string name="message_app_whatsapp">WhatsApp</string>
     <string name="message_app_google_messages">SMS / RCS</string>
     <string name="message_app_telegram">Telegram</string>
@@ -324,30 +300,21 @@
     <string name="message_pair_cancel_app">Cancel %1$s pairing</string>
     <string name="message_unpair_app">Disable %1$s alert</string>
     <string name="message_access_title">Notification access</string>
-    <string name="message_access_message">Allow SOS Ring to access notifications so it can identify direct conversations from VIP contacts. Message text is never stored.</string>
     <string name="message_pair_title">Pair %1$s conversation</string>
-    <string name="message_pair_message">With %1$s closed, ask %2$s to send a direct message. The next direct conversation in that app will be paired with this VIP.</string>
     <string name="message_pair_google_message">Ask %1$s to send a direct SMS or RCS message. SOS Ring pairs it automatically when Google Messages exposes the phone number; otherwise the next direct conversation is paired explicitly.</string>
     <string name="message_pair_success">%1$s alerts enabled for %2$s</string>
     <string name="message_auto_paired">SMS/RCS alerts automatically enabled for %1$s</string>
     <string name="message_unpaired">%1$s alerts disabled for %2$s</string>
     <string name="message_pair_cancelled">%1$s pairing cancelled</string>
-    <string name="message_settings_title">VIP message alerts</string>
     <string name="message_settings_desc">Separate volume and sound for WhatsApp, SMS/RCS and Telegram</string>
-    <string name="message_sound_enabled">Play a sound for VIP messages</string>
     <string name="message_sound_default">Default Android notification sound</string>
-    <string name="message_sound_contact">Sound assigned to the VIP contact (default notification if unavailable)</string>
-    <string name="call_mode_title">When to sound for VIP calls</string>
     <string name="call_mode_first">From the first call</string>
     <string name="call_mode_second">From the second call within %1$d minutes</string>
     <string name="call_mode_inherit">Use the general setting</string>
     <string name="call_mode_contact">Call rule for %1$s</string>
-    <string name="call_mode_summary_first">VIP calls: from the first call</string>
-    <string name="call_mode_summary_second">VIP calls: second within %1$d min</string>
     <string name="call_window_title">Repeat call window</string>
     <string name="call_window_value">Window: %1$d minutes</string>
     <string name="call_escalate_title">Double the volume on subsequent calls</string>
     <string name="call_escalate_high_volume">Applies only when the configured call volume is below 50%. Lower the call volume to enable the progression.</string>
     <string name="call_escalate_preview">When enabled: %1$d%% → %2$d%% → 100%%, starting from the first call allowed to sound. The original alarm volume is restored afterwards.</string>
-    <string name="call_mode_help">Only separate cellular calls from the same VIP number count. The window starts with the first call; answering resets it. The first call keeps the normal phone sound settings. Pauses and Quiet Hours block all overrides and reset the count. Messages keep their separate sound setting. Each VIP can override the general call rule from its menu.</string>
 </resources>
