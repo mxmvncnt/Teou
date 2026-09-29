@@ -2,7 +2,7 @@
 
 Android peer-to-peer, on-demand location sharing using UnifiedPush.
 
-Pair devices with QR codes in **Security**, add a contact on **Home**, and enable sharing for that peer in **Security**. A paired peer can request one location fix; the receiver checks the sender's signature and per-peer sharing setting before replying. Requests and responses are encrypted in transit.
+Add a contact in **Contacts**, pair devices with QR codes in **Security**, and enable sharing for that peer in **Security**. A paired peer can request one location fix; the receiver checks the sender's signature and per-peer sharing setting before replying. Requests and responses are encrypted in transit.
 
 Requires a UnifiedPush distributor on each device (for example ntfy). Push delivery is handled by the distributor; the app does not poll for requests. There is no FCM fallback yet.
 
