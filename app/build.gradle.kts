@@ -34,7 +34,7 @@ android {
     flavorDimensions += "distribution"
 
     productFlavors {
-        create("fdroid") {
+        create("unifiedpush") {
             dimension = "distribution"
         }
     }
@@ -94,7 +94,7 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.6.2")
     implementation("androidx.camera:camera-view:1.6.2")
 
-    "fdroidImplementation"("org.unifiedpush.android:connector:3.3.5")
+    "unifiedpushImplementation"("org.unifiedpush.android:connector:3.3.5")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20260814")

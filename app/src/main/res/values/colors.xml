@@ -2,7 +2,7 @@
 <!--
   téou — Stile 2A "Indaco"  ·  values/colors.xml (tema CHIARO)
   Sostituisce app/src/main/res/values/colors.xml
-  Vale per ENTRAMBI i flavor (family + fdroid): le risorse in src/main sono condivise.
+  Shared resources used by every flavor.
 -->
 <resources>
     <!-- Launcher e contenuti a contrasto fisso -->
