@@ -199,6 +199,8 @@
     <string name="expand_contacts_sheet">Espandi i contatti</string>
     <string name="expand_contacts_fully">Espandi completamente i contatti</string>
     <string name="collapse_contacts_sheet">Riduci i contatti</string>
+    <string name="center_on_device">Centra la mappa sulla tua posizione</string>
+    <string name="device_location_unavailable">La tua posizione non è al momento disponibile</string>
     <string name="last_seen_never">Ultimo avvistamento: mai</string>
     <string name="map_request_first_hint">Tocca per richiedere la prima posizione</string>
     <string name="map_pair_first_hint">Abbina prima il contatto in Sicurezza</string>

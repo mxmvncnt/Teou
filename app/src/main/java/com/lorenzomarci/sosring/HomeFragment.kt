@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -37,7 +38,6 @@ import org.maplibre.android.style.layers.PropertyFactory.circleStrokeColor
 import org.maplibre.android.style.layers.PropertyFactory.circleStrokeWidth
 import org.maplibre.android.style.layers.PropertyFactory.textColor
 import org.maplibre.android.style.layers.PropertyFactory.textField
-import org.maplibre.android.style.layers.PropertyFactory.textOffset
 import org.maplibre.android.style.layers.PropertyFactory.textSize
 import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.sources.GeoJsonSource
@@ -51,10 +51,12 @@ class HomeFragment : Fragment() {
     private lateinit var prefs: PrefsManager
     private var map: MapLibreMap? = null
     private var lastCentered: List<Pair<String, Long>> = emptyList()
+    private var deviceLocation: Location? = null
+    private var deviceHelper: LocationHelper? = null
     private val refreshHandler = Handler(Looper.getMainLooper())
     private val refreshRunnable = object : Runnable {
         override fun run() {
-            if (_binding != null) refresh()
+            if (_binding != null) { refresh(); updateDevicePin() }
             refreshHandler.postDelayed(this, 60_000L)
         }
     }
@@ -63,15 +65,20 @@ class HomeFragment : Fragment() {
     }
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { if (_binding != null) updatePermissions() }
+    ) { if (_binding != null) { updatePermissions(); refresh(); updateDevicePin() } }
     private val sheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             val expanded = newState == BottomSheetBehavior.STATE_EXPANDED
+            val collapsed = newState == BottomSheetBehavior.STATE_COLLAPSED
             when (newState) {
                 BottomSheetBehavior.STATE_COLLAPSED ->
                     _binding?.fabAdd?.translationY = -BottomSheetBehavior.from(bottomSheet).peekHeight.toFloat()
                 BottomSheetBehavior.STATE_HALF_EXPANDED,
                 BottomSheetBehavior.STATE_EXPANDED -> _binding?.fabAdd?.translationY = 0f
+            }
+            _binding?.fabAdd?.apply {
+                setImageResource(if (collapsed) R.drawable.ic_target else R.drawable.ic_plus)
+                contentDescription = getString(if (collapsed) R.string.center_on_device else R.string.add_contact)
             }
             _binding?.sheetHeader?.contentDescription = getString(
                 when (newState) {
@@ -121,7 +128,13 @@ class HomeFragment : Fragment() {
                 else -> BottomSheetBehavior.STATE_COLLAPSED
             }
         }
-        binding.fabAdd.setOnClickListener { editContact(null) }
+        binding.fabAdd.setOnClickListener {
+            if (BottomSheetBehavior.from(binding.contactsSheet).state == BottomSheetBehavior.STATE_COLLAPSED) {
+                centerOnDevice()
+            } else {
+                editContact(null)
+            }
+        }
         binding.btnPermissions.setOnClickListener {
             when {
                 hasLocation() && !hasBackgroundLocation() -> startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -140,11 +153,16 @@ class HomeFragment : Fragment() {
                 for ((sourceId, color) in listOf(ACTIVE to Color.rgb(21, 101, 192), UNREACHABLE to Color.GRAY)) {
                     style.addSource(GeoJsonSource(sourceId, FeatureCollection.fromFeatures(emptyArray<Feature>())))
                     style.addLayer(CircleLayer("$sourceId-pins", sourceId).withProperties(
-                        circleRadius(9f), circleColor(color), circleStrokeColor(Color.WHITE), circleStrokeWidth(2f)))
+                        circleRadius(12f), circleColor(color), circleStrokeColor(Color.WHITE), circleStrokeWidth(2f)))
                     style.addLayer(SymbolLayer("$sourceId-labels", sourceId).withProperties(
-                        textField(get("label")), textSize(13f), textColor(color), textOffset(arrayOf(0f, 1.6f))))
+                        textField(get("initial")), textSize(14f), textColor(Color.WHITE)))
                 }
+                style.addSource(GeoJsonSource(DEVICE, FeatureCollection.fromFeatures(emptyArray<Feature>())))
+                style.addLayer(CircleLayer("$DEVICE-pin", DEVICE).withProperties(
+                    circleRadius(9f), circleColor(Color.rgb(46, 125, 50)),
+                    circleStrokeColor(Color.WHITE), circleStrokeWidth(2f)))
                 refresh()
+                updateDevicePin()
             }
         }
     }
@@ -157,11 +175,14 @@ class HomeFragment : Fragment() {
         _binding?.mapView?.onResume()
         ReceivedLocationStore(requireContext()).register(storeListener)
         refreshHandler.post(refreshRunnable)
+        updateDevicePin()
     }
 
     override fun onPause() {
         refreshHandler.removeCallbacks(refreshRunnable)
         ReceivedLocationStore(requireContext()).unregister(storeListener)
+        deviceHelper?.stop()
+        deviceHelper = null
         _binding?.mapView?.onPause()
         super.onPause()
     }
@@ -170,8 +191,11 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         BottomSheetBehavior.from(binding.contactsSheet).removeBottomSheetCallback(sheetCallback)
+        deviceHelper?.stop()
+        deviceHelper = null
         binding.mapView.onDestroy()
         map = null
+        deviceLocation = null
         lastCentered = emptyList()
         _binding = null
         super.onDestroyView()
@@ -210,6 +234,56 @@ class HomeFragment : Fragment() {
         else if (Push.requestLocation(context, contact)) {
             Toast.makeText(context, getString(R.string.location_request_sent, contact.name), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun centerOnDevice() {
+        if (!hasLocation()) {
+            permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION))
+            return
+        }
+        val context = context ?: return
+        LocationHelper(context).requestSingleFix(object : LocationHelper.Callback {
+            override fun onLocationReady(location: Location) {
+                if (_binding == null) return
+                deviceLocation = location
+                updateDeviceSource()
+                map?.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    LatLng(location.latitude, location.longitude), 15.0))
+            }
+
+            override fun onLocationFailed() {
+                val ctx = context ?: return
+                Toast.makeText(ctx, getString(R.string.device_location_unavailable), Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun updateDevicePin() {
+        if (!hasLocation()) return
+        val context = context ?: return
+        deviceHelper?.stop()
+        val helper = LocationHelper(context)
+        deviceHelper = helper
+        helper.requestSingleFix(object : LocationHelper.Callback {
+            override fun onLocationReady(location: Location) {
+                if (_binding == null) return
+                deviceLocation = location
+                updateDeviceSource()
+            }
+
+            override fun onLocationFailed() = Unit
+        })
+    }
+
+    private fun updateDeviceSource() {
+        val style = map?.style ?: return
+        val loc = deviceLocation
+        val features = if (loc == null) emptyArray<Feature>()
+        else arrayOf(Feature.fromGeometry(Point.fromLngLat(loc.longitude, loc.latitude)))
+        try {
+            style.getSourceAs<GeoJsonSource>(DEVICE)?.setGeoJson(FeatureCollection.fromFeatures(features))
+        } catch (_: Exception) { }
     }
 
     private fun editContact(contact: VipContact?) {
@@ -338,7 +412,7 @@ class HomeFragment : Fragment() {
                 UNREACHABLE to pins.filter { it.unreachable })) {
             val features = selected.map { pin ->
                 Feature.fromGeometry(Point.fromLngLat(pin.location.lon, pin.location.lat)).apply {
-                    addStringProperty("label", pin.contact.name)
+                    addStringProperty("initial", pin.contact.name.trim().firstOrNull()?.uppercase() ?: "?")
                 }
             }
             style.getSourceAs<GeoJsonSource>(source)?.setGeoJson(FeatureCollection.fromFeatures(features.toTypedArray()))
@@ -364,6 +438,7 @@ class HomeFragment : Fragment() {
     companion object {
         private const val ACTIVE = "active-contacts"
         private const val UNREACHABLE = "unreachable-contacts"
+        private const val DEVICE = "device-location"
         private const val OSM_STYLE = """{
             "version": 8,
             "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",

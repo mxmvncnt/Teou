@@ -201,6 +201,8 @@
     <string name="expand_contacts_sheet">Expand contacts</string>
     <string name="expand_contacts_fully">Expand contacts fully</string>
     <string name="collapse_contacts_sheet">Collapse contacts</string>
+    <string name="center_on_device">Center map on your location</string>
+    <string name="device_location_unavailable">Your location is currently unavailable</string>
     <string name="last_seen_never">Last seen: never</string>
     <string name="map_request_first_hint">Tap to request the first location</string>
     <string name="map_pair_first_hint">Pair this contact in Security first</string>
