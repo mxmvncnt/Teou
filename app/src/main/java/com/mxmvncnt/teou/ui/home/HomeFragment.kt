@@ -49,6 +49,7 @@ import org.maplibre.android.style.layers.PropertyFactory.circleStrokeColor
 import org.maplibre.android.style.layers.PropertyFactory.circleStrokeWidth
 import org.maplibre.android.style.layers.PropertyFactory.textColor
 import org.maplibre.android.style.layers.PropertyFactory.textField
+import org.maplibre.android.style.layers.PropertyFactory.textFont
 import org.maplibre.android.style.layers.PropertyFactory.textSize
 import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.sources.GeoJsonSource
@@ -171,7 +172,7 @@ class HomeFragment : Fragment() {
         mapView.getMapAsync { loadedMap ->
             if (_binding?.mapView !== mapView) return@getMapAsync
             map = loadedMap
-            loadedMap.setStyle(Style.Builder().fromJson(OSM_STYLE)) { style ->
+            loadedMap.setStyle(Style.Builder().fromUri(getString(R.string.map_style_url))) { style ->
                 if (_binding?.mapView !== mapView) return@setStyle
                 val context = requireContext()
                 for ((sourceId, colors) in listOf(
@@ -188,7 +189,8 @@ class HomeFragment : Fragment() {
                     style.addLayer(CircleLayer("$sourceId-pins", sourceId).withProperties(
                         circleRadius(12f), circleColor(colors.first), circleStrokeColor(colors.second), circleStrokeWidth(2f)))
                     style.addLayer(SymbolLayer("$sourceId-labels", sourceId).withProperties(
-                        textField(get("initial")), textSize(14f), textColor(colors.second)))
+                        textField(get("initial")), textFont(arrayOf("Open Sans Regular")),
+                        textSize(14f), textColor(colors.second)))
                 }
                 style.addSource(GeoJsonSource(DEVICE, FeatureCollection.fromFeatures(emptyArray<Feature>())))
                 style.addLayer(CircleLayer("$DEVICE-pin", DEVICE).withProperties(
@@ -586,12 +588,5 @@ class HomeFragment : Fragment() {
         private const val ACTIVE = "active-contacts"
         private const val UNREACHABLE = "unreachable-contacts"
         private const val DEVICE = "device-location"
-        private const val OSM_STYLE = """{
-            "version": 8,
-            "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-            "sources": {"osm": {"type": "raster", "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                "tileSize": 256, "attribution": "© OpenStreetMap contributors"}},
-            "layers": [{"id": "osm", "type": "raster", "source": "osm"}]
-        }"""
     }
 }
