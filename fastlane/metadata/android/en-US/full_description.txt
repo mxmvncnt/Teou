@@ -1,16 +1,16 @@
-SOS Ring makes calls and supported direct messages from VIP contacts audible even if your phone is in Silent, Vibrate, or Do Not Disturb mode.
+téou makes calls and supported direct messages from VIP contacts audible even if your phone is in Silent, Vibrate, or Do Not Disturb mode.
 
 Perfect for families where someone always keeps their phone on silent but needs to be reachable in emergencies.
 
 HOW IT WORKS:
 • Add your VIP contacts (family, partner, etc.)
 • Enable the monitoring service
-• When a VIP contact calls, SOS Ring overrides Silent/DND mode, plays the ringtone at your chosen volume (25-100%), and vibrates
+• When a VIP contact calls, téou overrides Silent/DND mode, plays the ringtone at your chosen volume (25-100%), and vibrates
 • Optionally pair their direct WhatsApp, SMS/RCS, or Telegram conversation and choose a separate message volume (5-100%) and sound
 • After the alert ends, your phone is restored to its original state — silent mode, DND, volumes, everything
 
 WHY THIS APP EXISTS:
-Android 14+ removed per-contact DND exceptions. No built-in way exists to let specific contacts bypass silent mode. Google restricts READ_CALL_LOG on the Play Store, so this type of app can't be published there. SOS Ring is free, open source, and works where others can't.
+Android 14+ removed per-contact DND exceptions. No built-in way exists to let specific contacts bypass silent mode. Google restricts READ_CALL_LOG on the Play Store, so this type of app can't be published there. téou is free, open source, and works where others can't.
 
 FEATURES:
 • Pick VIP contacts from your phonebook or enter manually; select any or all numbers for contacts with multiple numbers
@@ -31,7 +31,7 @@ REPEATED CALLS:
 The default remains the first call. Choose the mode in Settings, Home or each VIP's menu. Only distinct cellular calls from the same number count; answering or pausing resets the sequence. The window does not slide. Messages do not count and stay silent during cellular calls. Pending counts use local hashed identifiers, expire within the window and are excluded from exports. See the README for details.
 
 LOCATION SHARING (optional, peer-to-peer):
-• No SOS Ring server required — you pick a UnifiedPush distributor app (e.g. ntfy on F-Droid); it relays only encrypted data
+• No téou server required — you pick a UnifiedPush distributor app (e.g. ntfy on F-Droid); it relays only encrypted data
 • End-to-end encrypted using Web Push encryption; the distributor never sees your location
 • Each message is signed with a per-device key in the Android Keystore, so the recipient can verify the sender
 • Pairing is explicit via QR code — no automatic connections
@@ -48,4 +48,4 @@ PERMISSIONS EXPLAINED:
 • Notifications: show a small persistent notification while monitoring
 • Location (including background): used only to answer location requests from paired contacts you explicitly authorized, even while the app is not on screen; nothing is collected or sent otherwise
 
-SOURCE CODE: https://github.com/JackRushante/SOSRing
+SOURCE CODE: https://github.com/mxmvncnt/teou

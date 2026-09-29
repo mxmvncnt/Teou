@@ -1,4 +1,4 @@
-# SOSRing R8 rules
+# Teou R8 rules
 
 # Keep JNI native method names (MapLibre and others bind to these)
 -keepclasseswithmembernames class * { native <methods>; }

@@ -13,7 +13,7 @@
         android:required="false" />
 
     <application
-        android:name=".SosRingApp"
+        android:name=".TeouApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,7 +23,7 @@
         android:localeConfig="@xml/locales_config"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SOSRing.Indaco"
+        android:theme="@style/Theme.Teou.Indaco"
         tools:targetApi="34">
 
         <activity
@@ -37,7 +37,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="locationshare" android:host="pair" />
+                <data android:scheme="teou" android:host="pair" />
             </intent-filter>
         </activity>
 

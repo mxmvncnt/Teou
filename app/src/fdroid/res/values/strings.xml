@@ -2,7 +2,7 @@
 <resources>
     <string name="security_title">Security</string>
 
-    <string name="p2p_block_not_registered">Push not registered yet. Install a UnifiedPush app (e.g. ntfy), open it once, then reopen SOS Ring.</string>
+    <string name="p2p_block_not_registered">Push not registered yet. Install a UnifiedPush app (e.g. ntfy), open it once, then reopen téou.</string>
     <string name="p2p_block_not_paired">This contact is not paired yet. Scan their pairing QR in the Security screen first.</string>
     <string name="location_service_not_running">Not ready: make sure your push channel is registered and this contact is paired, then try again.</string>
 

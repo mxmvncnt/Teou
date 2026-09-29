@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  SOS Ring — Stile 2A "Indaco"  ·  values/colors.xml (tema CHIARO)
+  téou — Stile 2A "Indaco"  ·  values/colors.xml (tema CHIARO)
   Sostituisce app/src/main/res/values/colors.xml
   Vale per ENTRAMBI i flavor (family + fdroid): le risorse in src/main sono condivise.
 -->

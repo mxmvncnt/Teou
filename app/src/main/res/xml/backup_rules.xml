@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <exclude domain="sharedpref" path="sosring_peers.xml" />
-    <exclude domain="sharedpref" path="sosring_unifiedpush.xml" />
-    <exclude domain="sharedpref" path="sosring_prefs.xml" />
+    <exclude domain="sharedpref" path="teou_peers.xml" />
+    <exclude domain="sharedpref" path="teou_unifiedpush.xml" />
+    <exclude domain="sharedpref" path="teou_prefs.xml" />
 </full-backup-content>

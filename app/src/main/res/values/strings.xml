@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="location_permission_request">Grant location permissions</string>
-    <string name="app_name" translatable="false">SOS Ring</string>
+    <string name="app_name" translatable="false">téou</string>
     <string name="appearance_title">Appearance</string>
     <string name="appearance_palette">Color theme</string>
     <string name="appearance_mode">Light / dark</string>
@@ -62,11 +62,11 @@
     </plurals>
     <string name="dnd_dialog_title">Do Not Disturb permission</string>
     <string name="btn_open_settings">Open settings</string>
-    <string name="notif_service_title">SOS Ring active</string>
+    <string name="notif_service_title">téou active</string>
     <string name="notif_override_title">Ringtone forced!</string>
     <!-- Quiet Hours -->
     <string name="quiet_hours_title">Quiet Hours</string>
-    <string name="quiet_hours_subtitle">SOS Ring pauses during these times</string>
+    <string name="quiet_hours_subtitle">téou pauses during these times</string>
     <string name="quiet_add_rule">Add quiet rule</string>
     <string name="quiet_new_rule_title">New quiet rule</string>
     <string name="quiet_from">From</string>
@@ -231,7 +231,7 @@
     <string name="security_key_rotated_received">Family member rotated their key. Import the new one to stay in sync.</string>
     <string name="security_key_mismatch_title">Key mismatch</string>
     <string name="security_key_mismatch">Contact has a different key. They may have rotated it. Ask for their new key.</string>
-    <string name="qr_scanner_hint">Point the camera at the SOS Ring key QR</string>
+    <string name="qr_scanner_hint">Point the camera at the téou key QR</string>
     <string name="camera_permission_needed">Camera permission required to scan QR</string>
     <string name="qr_scan_failed">Could not start QR scanner</string>
 
@@ -253,9 +253,9 @@
     <string name="privacy_title">Privacy &amp; licenses</string>
     <string name="privacy_data_title">Data handling</string>
     <string name="privacy_license_title">License</string>
-    <string name="privacy_license_body">SOS Ring is free software licensed under GPL-3.0-or-later.\n\nSource code: github.com/JackRushante/SOSRing</string>
+    <string name="privacy_license_body">téou is free software licensed under GPL-3.0-or-later.\n\nSource code: github.com/mxmvncnt/teou</string>
     <string name="privacy_contact_title">Contact</string>
-    <string name="privacy_contact_body">Developer: Lorenzo Marci</string>
+    <string name="privacy_contact_body">Developer: mxmvncnt</string>
     <string name="menu_edit">Edit</string>
     <string name="menu_delete">Delete</string>
     <string name="track_choice_title">Track %1$s</string>
@@ -266,12 +266,12 @@
     <string name="more_icon_desc">More</string>
     <string name="location_status_rate_limited">Server busy, try again shortly</string>
     <string name="location_service_not_running">Service not running: enable the service in Home and check the key in Security</string>
-    <string name="perm_revoked_notif_title">SOS Ring needs attention</string>
+    <string name="perm_revoked_notif_title">téou needs attention</string>
     <string name="home_warn_auto_revoke">Android may remove permissions if you never open the app.</string>
-    <string name="home_warn_battery_unrestricted">Battery optimization may kill call monitoring. Set SOS Ring to Unrestricted battery use.</string>
+    <string name="home_warn_battery_unrestricted">Battery optimization may kill call monitoring. Set téou to Unrestricted battery use.</string>
     <string name="home_warn_action_fix">Fix</string>
     <string name="notif_service_channel_name">Call monitoring</string>
-    <string name="notif_service_channel_desc">Persistent notification for the SOS Ring service</string>
+    <string name="notif_service_channel_desc">Persistent notification for the téou service</string>
     <string name="notif_override_channel_name">Override active</string>
     <string name="notif_override_channel_desc">Notification when the ringtone is forced</string>
     <string name="notif_location_channel_desc">Location sharing notifications</string>
@@ -305,7 +305,7 @@
     <string name="message_unpair_app">Disable %1$s alert</string>
     <string name="message_access_title">Notification access</string>
     <string name="message_pair_title">Pair %1$s conversation</string>
-    <string name="message_pair_google_message">Ask %1$s to send a direct SMS or RCS message. SOS Ring pairs it automatically when Google Messages exposes the phone number; otherwise the next direct conversation is paired explicitly.</string>
+    <string name="message_pair_google_message">Ask %1$s to send a direct SMS or RCS message. téou pairs it automatically when Google Messages exposes the phone number; otherwise the next direct conversation is paired explicitly.</string>
     <string name="message_pair_success">%1$s alerts enabled for %2$s</string>
     <string name="message_auto_paired">SMS/RCS alerts automatically enabled for %1$s</string>
     <string name="message_unpaired">%1$s alerts disabled for %2$s</string>

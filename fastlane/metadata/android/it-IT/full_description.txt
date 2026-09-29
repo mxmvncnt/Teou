@@ -1,16 +1,16 @@
-SOS Ring rende udibili chiamate e messaggi diretti supportati dei contatti VIP anche quando il telefono e in modalita Silenzioso, Vibrazione o Non Disturbare.
+téou rende udibili chiamate e messaggi diretti supportati dei contatti VIP anche quando il telefono e in modalita Silenzioso, Vibrazione o Non Disturbare.
 
 Perfetto per le famiglie dove qualcuno tiene sempre il telefono in silenzioso ma deve essere raggiungibile in caso di emergenza.
 
 COME FUNZIONA:
 • Aggiungi i tuoi contatti VIP (famiglia, partner, ecc.)
 • Attiva il servizio di monitoraggio
-• Quando un contatto VIP chiama, SOS Ring supera Silenzioso/DND, riproduce la suoneria al volume scelto (25-100%) e attiva la vibrazione
+• Quando un contatto VIP chiama, téou supera Silenzioso/DND, riproduce la suoneria al volume scelto (25-100%) e attiva la vibrazione
 • Puoi associare la sua conversazione diretta WhatsApp, SMS/RCS o Telegram e scegliere volume (5-100%) e suono separati
 • Al termine dell'avviso il telefono torna esattamente allo stato precedente — silenzioso, DND, volumi, tutto
 
 PERCHE QUESTA APP ESISTE:
-Android 14+ ha rimosso le eccezioni DND per contatto. Non esiste un modo nativo per far squillare il telefono per contatti specifici. Google blocca READ_CALL_LOG sul Play Store, quindi questo tipo di app non puo essere pubblicata li. SOS Ring e gratuita, open source, e funziona dove le altre non possono.
+Android 14+ ha rimosso le eccezioni DND per contatto. Non esiste un modo nativo per far squillare il telefono per contatti specifici. Google blocca READ_CALL_LOG sul Play Store, quindi questo tipo di app non puo essere pubblicata li. téou e gratuita, open source, e funziona dove le altre non possono.
 
 FUNZIONALITA:
 • Scegli contatti VIP dalla rubrica o inseriscili manualmente; per i contatti con più numeri puoi selezionarne uno, alcuni o tutti
@@ -31,7 +31,7 @@ CHIAMATE RIPETUTE:
 Modalità da Impostazioni, Home o menu VIP. Contano chiamate cellulari distinte dallo stesso numero in una finestra fissa. Risposta o pausa azzera i contatori locali, hash non esportati. Dettagli nel README.
 
 CONDIVISIONE POSIZIONE (opzionale, peer-to-peer):
-• Non serve un server SOS Ring — scegli tu un'app distributore UnifiedPush (es. ntfy su F-Droid); trasmette solo dati cifrati
+• Non serve un server téou — scegli tu un'app distributore UnifiedPush (es. ntfy su F-Droid); trasmette solo dati cifrati
 • Cifratura end-to-end con crittografia Web Push; il distributore non vede mai la tua posizione
 • Ogni messaggio è firmato con una chiave per dispositivo nell'Android Keystore, così il destinatario può verificare il mittente
 • L'abbinamento avviene tramite QR code — nessuna connessione automatica
@@ -48,4 +48,4 @@ PERMESSI SPIEGATI:
 • Notifiche: mostra una piccola notifica persistente durante il monitoraggio
 • Posizione (anche in background): usata solo per rispondere alle richieste di posizione dei contatti abbinati che hai autorizzato esplicitamente, anche quando l'app non è in primo piano; nient'altro viene raccolto o inviato
 
-CODICE SORGENTE: https://github.com/JackRushante/SOSRing
+CODICE SORGENTE: https://github.com/mxmvncnt/teou

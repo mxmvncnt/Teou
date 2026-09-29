@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SOSRing"
+rootProject.name = "Teou"
 include(":app")

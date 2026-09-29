@@ -11,11 +11,11 @@ val localProps = Properties().apply {
 }
 
 android {
-    namespace = "com.lorenzomarci.sosring"
+    namespace = "com.mxmvncnt.teou"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.lorenzomarci.sosring"
+        applicationId = "com.mxmvncnt.teou"
         minSdk = 29
         targetSdk = 36
         versionCode = 51
