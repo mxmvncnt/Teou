@@ -20,6 +20,8 @@
     <string name="p2p_pair_no_contacts">Add a contact in the Home screen first.</string>
     <string name="p2p_pair_choose_contact">Link this QR to which contact?</string>
     <string name="p2p_pair_saved">Paired with %1$s</string>
+    <string name="pair_copy_link">Copy pairing link</string>
+    <string name="pair_link_copied">Pairing link copied</string>
     <string name="p2p_peer_remove_title">Remove pairing</string>
     <string name="p2p_peer_remove_msg">Remove the pairing for %1$s?</string>
 

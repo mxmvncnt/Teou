@@ -178,6 +178,10 @@ class HomeFragment : Fragment() {
                 updateDevicePin()
             }
         }
+        arguments?.getString(ARG_PAIRING)?.let { linkText ->
+            arguments?.remove(ARG_PAIRING)
+            view.post { if (_binding != null) handlePairingText(linkText) }
+        }
     }
 
     override fun onStart() { super.onStart(); _binding?.mapView?.onStart() }
@@ -536,6 +540,12 @@ class HomeFragment : Fragment() {
     }
 
     companion object {
+        private const val ARG_PAIRING = "pairing_link"
+
+        fun withPairing(linkText: String) = HomeFragment().apply {
+            arguments = Bundle().apply { putString(ARG_PAIRING, linkText) }
+        }
+
         private const val ACTIVE = "active-contacts"
         private const val UNREACHABLE = "unreachable-contacts"
         private const val DEVICE = "device-location"

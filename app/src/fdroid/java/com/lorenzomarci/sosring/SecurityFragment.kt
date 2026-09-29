@@ -117,6 +117,13 @@ class SecurityFragment : Fragment() {
                 MaterialAlertDialogBuilder(ctx)
                     .setTitle(R.string.p2p_my_qr_title)
                     .setView(container)
+                    .setNeutralButton(R.string.pair_copy_link) { _, _ ->
+                        val clipboard = ctx.getSystemService(android.content.ClipboardManager::class.java)
+                        clipboard.setPrimaryClip(
+                            android.content.ClipData.newPlainText("pairing", UnifiedPushPairing.linkFor(payload))
+                        )
+                        Toast.makeText(ctx, getString(R.string.pair_link_copied), Toast.LENGTH_SHORT).show()
+                    }
                     .setPositiveButton(R.string.btn_close, null)
                     .show()
             }

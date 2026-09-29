@@ -1,5 +1,6 @@
 package com.lorenzomarci.sosring
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
@@ -37,6 +38,22 @@ class MainActivity : BaseActivity() {
         loadFragment(HomeFragment(), getString(R.string.nav_home))
         binding.navigationView.setCheckedItem(R.id.nav_home)
 
+        handlePairingLink(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handlePairingLink(intent)
+    }
+
+    private fun handlePairingLink(intent: Intent?) {
+        if (intent?.action != Intent.ACTION_VIEW) return
+        val data = intent.data ?: return
+        if (data.scheme != UnifiedPushPairing.LINK_SCHEME || data.host != "pair") return
+        val linkText = intent.dataString ?: return
+        loadFragment(HomeFragment.withPairing(linkText), getString(R.string.nav_home))
+        binding.navigationView.setCheckedItem(R.id.nav_home)
     }
 
     override fun onResume() {

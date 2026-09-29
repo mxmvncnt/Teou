@@ -12,6 +12,12 @@ data class PairPayload(
 object UnifiedPushPairing {
 
     private const val PREFIX = "sosup1:"
+    const val LINK_SCHEME = "locationshare"
+    private const val LINK_HOST = "pair"
+    private const val LINK_PARAM = "data"
+
+    fun linkFor(payload: String): String =
+        "$LINK_SCHEME://$LINK_HOST?$LINK_PARAM=${android.net.Uri.encode(payload)}"
 
     fun encode(payload: PairPayload): String {
         val json = JSONObject().apply {
@@ -25,9 +31,9 @@ object UnifiedPushPairing {
 
     fun decode(text: String): PairPayload? {
         val trimmed = text.trim()
-        if (!trimmed.startsWith(PREFIX)) return null
+        val body = if (trimmed.startsWith(PREFIX)) trimmed else linkData(trimmed) ?: return null
         return try {
-            val decoded = String(WebPushCrypto.b64dec(trimmed.removePrefix(PREFIX)), Charsets.UTF_8)
+            val decoded = String(WebPushCrypto.b64dec(body.removePrefix(PREFIX)), Charsets.UTF_8)
             val json = JSONObject(decoded)
             val endpoint = json.optString("e", "")
             val p256dh = json.optString("p", "")
@@ -38,5 +44,12 @@ object UnifiedPushPairing {
         } catch (e: Exception) {
             null
         }
+    }
+
+    private fun linkData(text: String): String? = try {
+        val uri = android.net.Uri.parse(text)
+        if (uri.scheme == LINK_SCHEME && uri.host == LINK_HOST) uri.getQueryParameter(LINK_PARAM) else null
+    } catch (_: Exception) {
+        null
     }
 }
