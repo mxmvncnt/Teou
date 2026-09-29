@@ -1,9 +1,6 @@
 package com.mxmvncnt.teou.util
 
-/**
- * Retry per i messaggi di controllo (live_start/live_stop): a differenza dei
- * punti live (lossy per natura), la loro perdita lascia sessioni appese.
- */
+/** Bounded backoff for transient push-delivery failures, including location replies. */
 object ControlRetryPolicy {
     val DELAYS_MS = longArrayOf(0L, 3_000L, 10_000L)
     val MAX_ATTEMPTS = DELAYS_MS.size

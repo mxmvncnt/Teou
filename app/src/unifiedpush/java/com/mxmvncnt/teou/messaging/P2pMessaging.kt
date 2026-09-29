@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.mxmvncnt.teou.data.PrefsManager
 import com.mxmvncnt.teou.util.PhoneUtils
+import com.mxmvncnt.teou.util.ControlRetryPolicy
 import com.mxmvncnt.teou.location.*
 import com.mxmvncnt.teou.push.unifiedpush.WebPushSender
 
@@ -75,8 +76,10 @@ object P2pMessaging {
 
     fun sendLocation(context: Context, requester: Peer, latitude: Double, longitude: Double, accuracy: Double) {
         val payload = P2pMessageFactory.locResponse(latitude, longitude, accuracy)
-        if (sendTo(context, requester, payload)) {
+        if (sendTo(context, requester, payload, attempts = ControlRetryPolicy.MAX_ATTEMPTS)) {
             Log.i(TAG, "position response sent to ${requester.number}")
+        } else {
+            Log.w(TAG, "Position response failed after ${ControlRetryPolicy.MAX_ATTEMPTS} attempts")
         }
     }
 
@@ -86,10 +89,10 @@ object P2pMessaging {
         Log.i(TAG, "position response saved from ${sender.number}")
     }
 
-    private fun sendTo(context: Context, peer: Peer, payload: ByteArray): Boolean {
+    private fun sendTo(context: Context, peer: Peer, payload: ByteArray, attempts: Int = 1): Boolean {
         val envelope = P2pEnvelope.seal(payload, IdentityKeyStore.idPub(), IdentityKeyStore::sign)
         val body = WebPushCrypto.encrypt(envelope, peer.p256dh, peer.auth)
-        return WebPushSender.send(peer.endpoint, body)
+        return WebPushSender.send(peer.endpoint, body, attempts)
     }
 
 }
