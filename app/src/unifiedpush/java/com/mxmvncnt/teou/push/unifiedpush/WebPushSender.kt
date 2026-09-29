@@ -18,6 +18,7 @@ object WebPushSender {
             .url(endpoint)
             .post(body.toRequestBody(OCTET_STREAM))
             .header("TTL", ttlSeconds.toString())
+            .header("Urgency", "high")
             .header("Content-Encoding", "aes128gcm")
             .build()
     }

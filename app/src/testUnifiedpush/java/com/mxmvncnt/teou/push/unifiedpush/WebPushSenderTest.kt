@@ -19,6 +19,7 @@ class WebPushSenderTest {
         assertEquals("POST", request.method)
         assertEquals("https://push.example.com/upABC123", request.url.toString())
         assertEquals("90", request.header("TTL"))
+        assertEquals("high", request.header("Urgency"))
         assertEquals("aes128gcm", request.header("Content-Encoding"))
 
         val buffer = Buffer()
