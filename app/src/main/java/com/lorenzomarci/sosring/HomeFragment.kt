@@ -1,6 +1,7 @@
 package com.lorenzomarci.sosring
 
 import android.Manifest
+import android.app.Activity
 import android.content.SharedPreferences
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -66,6 +67,14 @@ class HomeFragment : Fragment() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { if (_binding != null) { updatePermissions(); refresh(); updateDevicePin() } }
+    private val qrScanLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val content = result.data?.getStringExtra(QrScannerActivity.EXTRA_QR_TEXT)
+        if (result.resultCode == Activity.RESULT_OK && !content.isNullOrBlank()) {
+            handlePairingText(content.trim())
+        }
+    }
     private val sheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             val expanded = newState == BottomSheetBehavior.STATE_EXPANDED
@@ -136,7 +145,7 @@ class HomeFragment : Fragment() {
             if (BottomSheetBehavior.from(binding.contactsSheet).state == BottomSheetBehavior.STATE_COLLAPSED) {
                 centerOnDevice()
             } else {
-                editContact(null)
+                showAddOptions()
             }
         }
         binding.btnPermissions.setOnClickListener {
@@ -290,7 +299,7 @@ class HomeFragment : Fragment() {
         } catch (_: Exception) { }
     }
 
-    private fun editContact(contact: VipContact?) {
+    private fun editContact(contact: VipContact?, pendingPayload: PairPayload? = null) {
         val view = layoutInflater.inflate(R.layout.dialog_add_number, null)
         val name = view.findViewById<EditText>(R.id.etDialogName)
         name.setText(contact?.name.orEmpty())
@@ -302,13 +311,16 @@ class HomeFragment : Fragment() {
                 val contacts = prefs.getContacts().toMutableList()
                 if (n.isBlank() || contacts.any { it.number != contact?.number && it.name.equals(n, ignoreCase = true) }) {
                     Toast.makeText(requireContext(), R.string.contact_invalid_input, Toast.LENGTH_LONG).show()
+                } else if (contact == null && pendingPayload != null) {
+                    pairNewContact(n, pendingPayload)
+                } else if (contact == null) {
+                    contacts.add(VipContact(n, java.util.UUID.randomUUID().toString()))
+                    prefs.saveContacts(contacts)
+                    refresh()
                 } else {
-                    if (contact == null) contacts.add(VipContact(n, java.util.UUID.randomUUID().toString()))
-                    else {
-                        val position = contacts.indexOfFirst { it.number == contact.number }
-                        if (position < 0) return@setPositiveButton
-                        contacts[position] = contact.copy(name = n)
-                    }
+                    val position = contacts.indexOfFirst { it.number == contact.number }
+                    if (position < 0) return@setPositiveButton
+                    contacts[position] = contact.copy(name = n)
                     prefs.saveContacts(contacts)
                     refresh()
                 }
@@ -326,6 +338,84 @@ class HomeFragment : Fragment() {
                 refresh()
             }
             .setNegativeButton(R.string.btn_cancel, null).show()
+    }
+
+    private fun showAddOptions() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setItems(arrayOf(getString(R.string.pair_scan), getString(R.string.pair_paste))) { _, which ->
+                if (which == 0) {
+                    qrScanLauncher.launch(Intent(requireContext(), QrScannerActivity::class.java))
+                } else {
+                    showPasteDialog()
+                }
+            }
+            .show()
+    }
+
+    private fun showPasteDialog() {
+        val input = EditText(requireContext()).apply {
+            hint = getString(R.string.pair_paste_hint)
+            minLines = 3
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.pair_paste)
+            .setView(input)
+            .setPositiveButton(android.R.string.ok) { _, _ -> handlePairingText(input.text.toString()) }
+            .setNegativeButton(R.string.btn_cancel, null)
+            .show()
+    }
+
+    private fun handlePairingText(raw: String) {
+        val payload = UnifiedPushPairing.decode(raw.trim())
+        val idPub = payload?.idPub
+        if (payload == null || idPub.isNullOrBlank()) {
+            Toast.makeText(requireContext(), R.string.p2p_pair_invalid, Toast.LENGTH_LONG).show()
+            return
+        }
+        editContact(null, payload)
+    }
+
+    private fun pairNewContact(name: String, payload: PairPayload) {
+        val idPub = payload.idPub ?: return
+        val duplicateOwner = PeerStore(requireContext()).all().firstOrNull { it.idPub == idPub }
+        if (duplicateOwner == null) {
+            savePairedContact(name, payload)
+            return
+        }
+        val ownerName = prefs.getContacts()
+            .firstOrNull { PhoneUtils.matches(it.number, duplicateOwner.number) }?.name
+            ?: fingerprintOf(idPub)
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.p2p_duplicate_identity_title)
+            .setMessage(getString(R.string.p2p_duplicate_identity_msg, ownerName, name, fingerprintOf(idPub)))
+            .setPositiveButton(R.string.p2p_duplicate_identity_confirm) { _, _ -> savePairedContact(name, payload) }
+            .setNegativeButton(R.string.btn_cancel, null)
+            .show()
+    }
+
+    private fun savePairedContact(name: String, payload: PairPayload) {
+        val idPub = payload.idPub ?: return
+        val contacts = prefs.getContacts().toMutableList()
+        if (contacts.any { it.name.equals(name, ignoreCase = true) }) {
+            Toast.makeText(requireContext(), R.string.contact_invalid_input, Toast.LENGTH_LONG).show()
+            return
+        }
+        val id = java.util.UUID.randomUUID().toString()
+        contacts.add(VipContact(name, id))
+        prefs.saveContacts(contacts)
+        PeerStore(requireContext()).save(
+            Peer(number = id, endpoint = payload.endpoint, p256dh = payload.p256dh, auth = payload.auth, idPub = idPub)
+        )
+        Toast.makeText(requireContext(), getString(R.string.p2p_pair_saved, name), Toast.LENGTH_SHORT).show()
+        refresh()
+    }
+
+    private fun fingerprintOf(idPubB64: String): String {
+        return try {
+            MessageAuth.fingerprint(WebPushCrypto.b64dec(idPubB64))
+        } catch (e: Exception) {
+            idPubB64
+        }
     }
 
     private fun currentPins(): List<Pin> {

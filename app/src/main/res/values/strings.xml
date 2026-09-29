@@ -199,6 +199,9 @@
     </plurals>
     <string name="map_refresh_contact">Request location from %1$s</string>
     <string name="map_find_contact">Find %1$s on the map</string>
+    <string name="pair_scan">Scan QR code</string>
+    <string name="pair_paste">Paste pairing code</string>
+    <string name="pair_paste_hint">Pairing data</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_location_log">Location log</string>
     <string name="nav_privacy">Privacy &amp; licenses</string>
