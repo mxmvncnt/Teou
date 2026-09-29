@@ -77,15 +77,14 @@
                     android:paddingBottom="96dp" />
             </androidx.core.widget.NestedScrollView>
         </LinearLayout>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAdd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:contentDescription="@string/add_contact"
-            android:visibility="gone"
-            app:srcCompat="@drawable/ic_plus" />
     </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/add_contact"
+        app:srcCompat="@drawable/ic_plus" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

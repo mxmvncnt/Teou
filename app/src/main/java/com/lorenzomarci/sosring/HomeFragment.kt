@@ -67,7 +67,12 @@ class HomeFragment : Fragment() {
     private val sheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             val expanded = newState == BottomSheetBehavior.STATE_EXPANDED
-            _binding?.fabAdd?.visibility = if (expanded) View.VISIBLE else View.GONE
+            when (newState) {
+                BottomSheetBehavior.STATE_COLLAPSED ->
+                    _binding?.fabAdd?.translationY = -BottomSheetBehavior.from(bottomSheet).peekHeight.toFloat()
+                BottomSheetBehavior.STATE_HALF_EXPANDED,
+                BottomSheetBehavior.STATE_EXPANDED -> _binding?.fabAdd?.translationY = 0f
+            }
             _binding?.sheetHeader?.contentDescription = getString(
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> R.string.collapse_contacts_sheet
@@ -82,7 +87,15 @@ class HomeFragment : Fragment() {
             _binding?.btnPermissions?.importantForAccessibility = accessibility
         }
 
-        override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val behavior = BottomSheetBehavior.from(bottomSheet)
+            val parentHeight = (bottomSheet.parent as? View)?.height ?: return
+            val peek = behavior.peekHeight
+            val distanceToHalf = (parentHeight - peek - parentHeight * (1f - behavior.halfExpandedRatio))
+                .coerceAtLeast(1f)
+            val progress = ((parentHeight - peek - bottomSheet.top) / distanceToHalf).coerceIn(0f, 1f)
+            _binding?.fabAdd?.translationY = -peek * (1f - progress)
+        }
     }
 
     private data class Pin(val contact: VipContact, val location: ReceivedLocation, val unreachable: Boolean)
