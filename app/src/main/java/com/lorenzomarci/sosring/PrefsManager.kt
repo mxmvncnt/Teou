@@ -10,14 +10,6 @@ data class VipContact(val name: String, val number: String, val locationEnabled:
 
 data class LocationLogEntry(val name: String, val number: String, val timestamp: Long, val type: String)
 
-enum class AppPalette {
-    INDACO, TEAL, ARGILLA, ARDESIA;
-
-    companion object {
-        fun fromStoredOrdinal(value: Int): AppPalette = values().getOrElse(value) { INDACO }
-    }
-}
-
 class PrefsManager(context: Context) {
     // Keep the existing store and keys so upgrading preserves paired contacts and sharing consent.
     private val prefs = context.getSharedPreferences("sosring_prefs", Context.MODE_PRIVATE)
@@ -25,16 +17,11 @@ class PrefsManager(context: Context) {
     companion object {
         private const val KEY_CONTACTS = "vip_contacts"
         private const val KEY_LOCATION_LOGS = "location_logs"
-        private const val KEY_THEME_PALETTE = "theme_palette"
         private const val KEY_THEME_MODE = "theme_mode"
 
         fun applyLocationEnabledUpdate(contacts: List<VipContact>, number: String, enabled: Boolean): List<VipContact> =
             contacts.map { c -> if (PhoneUtils.matches(c.number, number)) c.copy(locationEnabled = enabled) else c }
     }
-
-    var themePalette: AppPalette
-        get() = AppPalette.fromStoredOrdinal(prefs.getInt(KEY_THEME_PALETTE, AppPalette.INDACO.ordinal))
-        set(value) = prefs.edit().putInt(KEY_THEME_PALETTE, value.ordinal).apply()
 
     var themeMode: Int
         get() = prefs.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM).let { stored ->

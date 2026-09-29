@@ -40,7 +40,9 @@ class LocationLogFragment : Fragment() {
             val empty = TextView(requireContext()).apply {
                 text = getString(R.string.location_log_empty)
                 textSize = 14f
-                setTextColor(requireContext().getColor(android.R.color.darker_gray))
+                setTextColor(ThemeManager.color(
+                    requireContext(), com.google.android.material.R.attr.colorOnSurfaceVariant
+                ))
                 setPadding(0, 16, 0, 16)
             }
             container.addView(empty)

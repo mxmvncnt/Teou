@@ -7,6 +7,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.lorenzomarci.sosring.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity() {
@@ -18,14 +20,20 @@ class MainActivity : BaseActivity() {
         super.onCreate(null)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.navigationView) { view, insets ->
-            view.setPadding(
-                view.paddingLeft,
-                insets.getInsets(WindowInsetsCompat.Type.statusBars()).top,
-                view.paddingRight,
-                view.paddingBottom
-            )
-            insets
+        val toolbarHeight = binding.toolbar.layoutParams.height
+        val toolbarTop = binding.toolbar.paddingTop
+        val contentBottom = binding.fragmentContainer.paddingBottom
+        val drawerHeader = binding.navigationView.getHeaderView(0)
+        val drawerHeaderTop = drawerHeader.paddingTop
+        val drawerBottom = binding.navigationView.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.toolbar.updatePadding(top = toolbarTop + bars.top)
+            binding.toolbar.updateLayoutParams { height = toolbarHeight + bars.top }
+            binding.fragmentContainer.updatePadding(bottom = contentBottom + bars.bottom)
+            drawerHeader.updatePadding(top = drawerHeaderTop + bars.top)
+            binding.navigationView.updatePadding(bottom = drawerBottom + bars.bottom)
+            WindowInsetsCompat.CONSUMED
         }
 
         setSupportActionBar(binding.toolbar)

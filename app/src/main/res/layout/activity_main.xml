@@ -5,7 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
+    android:background="?attr/colorSurface"
     android:fitsSystemWindows="true">
 
     <!-- Main content -->
@@ -18,12 +18,12 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/bg"
+            android:background="?attr/colorSurface"
             android:elevation="0dp"
             app:title="@string/app_name"
-            app:titleTextColor="@color/ink"
+            app:titleTextColor="?attr/colorOnSurface"
             app:navigationIcon="@drawable/ic_menu"
-            app:navigationIconTint="@color/ink" />
+            app:navigationIconTint="?attr/colorOnSurface" />
 
         <FrameLayout
             android:id="@+id/fragmentContainer"
@@ -37,14 +37,11 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/surface"
+        android:background="?attr/colorSurface"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header"
-        app:itemBackground="@drawable/nav_item_bg"
-        app:itemIconTint="@color/nav_item_icon"
         app:itemShapeInsetEnd="8dp"
         app:itemShapeInsetStart="8dp"
-        app:itemTextColor="@color/nav_item_text"
         app:menu="@menu/nav_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

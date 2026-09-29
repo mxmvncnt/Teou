@@ -22,10 +22,6 @@
         <item name="shapeAppearanceCornerMedium">@style/Shape.SOSRing.Medium</item>
         <item name="shapeAppearanceCornerLarge">@style/Shape.SOSRing.Large</item>
 
-        <!-- Tipografia -->
-        <item name="fontFamily">@font/manrope</item>
-        <item name="android:fontFamily">@font/manrope</item>
-
         <!-- System bars -->
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/bg</item>

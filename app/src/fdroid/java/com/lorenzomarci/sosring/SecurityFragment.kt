@@ -158,7 +158,9 @@ class SecurityFragment : Fragment() {
             this.text = text
             textSize = 12f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setTextColor(requireContext().getColor(R.color.ink_secondary))
+            setTextColor(ThemeManager.color(
+                requireContext(), com.google.android.material.R.attr.colorOnSurfaceVariant
+            ))
             setPadding(0, (12 * density).toInt(), 0, (2 * density).toInt())
         }
     }
@@ -167,7 +169,9 @@ class SecurityFragment : Fragment() {
         return TextView(requireContext()).apply {
             this.text = text
             textSize = 13f
-            setTextColor(requireContext().getColor(R.color.ink_secondary))
+            setTextColor(ThemeManager.color(
+                requireContext(), com.google.android.material.R.attr.colorOnSurfaceVariant
+            ))
             setPadding(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
         }
     }

@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.SharedPreferences
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
@@ -15,7 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -164,17 +162,28 @@ class HomeFragment : Fragment() {
             map = loadedMap
             loadedMap.setStyle(Style.Builder().fromJson(OSM_STYLE)) { style ->
                 if (_binding?.mapView !== mapView) return@setStyle
-                for ((sourceId, color) in listOf(ACTIVE to Color.rgb(21, 101, 192), UNREACHABLE to Color.GRAY)) {
+                val context = requireContext()
+                for ((sourceId, colors) in listOf(
+                    ACTIVE to Pair(
+                        ThemeManager.color(context, androidx.appcompat.R.attr.colorPrimary),
+                        ThemeManager.color(context, com.google.android.material.R.attr.colorOnPrimary)
+                    ),
+                    UNREACHABLE to Pair(
+                        ThemeManager.color(context, com.google.android.material.R.attr.colorSurfaceVariant),
+                        ThemeManager.color(context, com.google.android.material.R.attr.colorOnSurfaceVariant)
+                    )
+                )) {
                     style.addSource(GeoJsonSource(sourceId, FeatureCollection.fromFeatures(emptyArray<Feature>())))
                     style.addLayer(CircleLayer("$sourceId-pins", sourceId).withProperties(
-                        circleRadius(12f), circleColor(color), circleStrokeColor(Color.WHITE), circleStrokeWidth(2f)))
+                        circleRadius(12f), circleColor(colors.first), circleStrokeColor(colors.second), circleStrokeWidth(2f)))
                     style.addLayer(SymbolLayer("$sourceId-labels", sourceId).withProperties(
-                        textField(get("initial")), textSize(14f), textColor(Color.WHITE)))
+                        textField(get("initial")), textSize(14f), textColor(colors.second)))
                 }
                 style.addSource(GeoJsonSource(DEVICE, FeatureCollection.fromFeatures(emptyArray<Feature>())))
                 style.addLayer(CircleLayer("$DEVICE-pin", DEVICE).withProperties(
-                    circleRadius(9f), circleColor(Color.rgb(46, 125, 50)),
-                    circleStrokeColor(Color.WHITE), circleStrokeWidth(2f)))
+                    circleRadius(9f), circleColor(ThemeManager.color(context, com.google.android.material.R.attr.colorTertiary)),
+                    circleStrokeColor(ThemeManager.color(context, com.google.android.material.R.attr.colorOnTertiary)),
+                    circleStrokeWidth(2f)))
                 refresh()
                 updateDevicePin()
             }
@@ -473,7 +482,7 @@ class HomeFragment : Fragment() {
         if (contacts.isEmpty()) {
             binding.locationSummary.addView(TextView(context).apply {
                 setText(R.string.map_no_contacts)
-                setTextColor(ContextCompat.getColor(context, R.color.ink_secondary))
+                setTextColor(ThemeManager.color(context, com.google.android.material.R.attr.colorOnSurfaceVariant))
             })
         }
         contacts.forEach { contact ->
@@ -483,7 +492,7 @@ class HomeFragment : Fragment() {
             val lastSeen = row.findViewById<TextView>(R.id.tvMapLastSeen)
             name.text = contact.name
             if (pin == null) {
-                name.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+                name.setTextColor(ThemeManager.color(context, com.google.android.material.R.attr.colorOnSurfaceVariant))
                 val paired = peers[PhoneUtils.normalize(contact.number)] != null
                 lastSeen.text = getString(R.string.last_seen_never) + "\n" +
                     getString(if (paired) R.string.map_request_first_hint else R.string.map_pair_first_hint)
@@ -495,15 +504,17 @@ class HomeFragment : Fragment() {
                 val minutes = ((now - pin.location.receivedAt).coerceAtLeast(0L) / 60_000L)
                     .coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
                 lastSeen.text = resources.getQuantityString(R.plurals.last_seen_minutes, minutes, minutes)
-                if (pin.unreachable) name.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+                if (pin.unreachable) name.setTextColor(
+                    ThemeManager.color(context, com.google.android.material.R.attr.colorOnSurfaceVariant)
+                )
             }
-            row.findViewById<ImageButton>(R.id.btnMapRefresh).apply {
+            row.findViewById<View>(R.id.btnMapRefresh).apply {
                 contentDescription = getString(R.string.map_refresh_contact, contact.name)
                 isEnabled = pin != null
                 alpha = if (pin == null) 0.35f else 1f
                 setOnClickListener { requestLocation(contact) }
             }
-            row.findViewById<ImageButton>(R.id.btnMapLocate).apply {
+            row.findViewById<View>(R.id.btnMapLocate).apply {
                 contentDescription = getString(R.string.map_find_contact, contact.name)
                 isEnabled = pin != null
                 alpha = if (pin == null) 0.35f else 1f
@@ -513,7 +524,7 @@ class HomeFragment : Fragment() {
                         LatLng(pin.location.lat, pin.location.lon), 15.0))
                 }
             }
-            row.findViewById<ImageButton>(R.id.btnMapMore).setOnClickListener { anchor ->
+            row.findViewById<View>(R.id.btnMapMore).setOnClickListener { anchor ->
                 PopupMenu(context, anchor).apply {
                     menuInflater.inflate(R.menu.vip_row_menu, menu)
                     setOnMenuItemClickListener { item ->

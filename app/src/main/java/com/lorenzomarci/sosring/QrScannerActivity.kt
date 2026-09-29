@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -12,6 +13,11 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.lorenzomarci.sosring.databinding.ActivityQrScannerBinding
 import java.util.concurrent.Executors
 
@@ -34,8 +40,22 @@ class QrScannerActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
         binding = ActivityQrScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val hintTop = binding.tvScannerHint.paddingTop
+        val cancelBottom = (binding.btnCancelScanner.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.tvScannerHint.updatePadding(top = hintTop + bars.top)
+            binding.btnCancelScanner.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = cancelBottom + bars.bottom
+            }
+            WindowInsetsCompat.CONSUMED
+        }
         binding.btnCancelScanner.setOnClickListener { finish() }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==

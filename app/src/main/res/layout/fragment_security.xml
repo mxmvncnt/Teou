@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
+    android:background="?attr/colorSurface"
     android:clipToPadding="false">
 
     <LinearLayout
@@ -17,7 +17,7 @@
         android:paddingBottom="28dp">
 
         <com.google.android.material.card.MaterialCardView
-            style="@style/Widget.SOSRing.Card"
+            style="@style/Widget.Material3.CardView.Elevated"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -37,10 +37,11 @@
                         android:layout_width="44dp"
                         android:layout_height="44dp"
                         android:background="@drawable/bg_badge_soft"
+                        android:backgroundTint="?attr/colorSecondaryContainer"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_key"
-                        app:tint="?attr/tokenAccent" />
+                        app:tint="?attr/colorOnSecondaryContainer" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -53,17 +54,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/security_your_key_title"
-                            android:textColor="@color/ink"
-                            android:textSize="17sp"
-                            android:textStyle="bold" />
+                            android:textAppearance="?attr/textAppearanceTitleMediumEmphasized" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="3dp"
                             android:text="@string/security_your_key_description"
-                            android:textColor="@color/ink_secondary"
-                            android:textSize="12sp" />
+                            android:textAppearance="?attr/textAppearanceBodySmall" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -73,30 +71,29 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/bg_card_soft"
+                    android:backgroundTint="?attr/colorSurfaceContainerHighest"
                     android:drawableStart="@drawable/ic_shield_check"
                     android:drawablePadding="10dp"
                     android:gravity="center_vertical"
                     android:minHeight="50dp"
                     android:padding="12dp"
-                    android:textColor="@color/ink_secondary"
-                    android:textSize="14sp"
-                    app:drawableTint="?attr/tokenStatusOk" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    app:drawableTint="?attr/colorPrimary" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGenerateKey"
-                    style="@style/Widget.SOSRing.Button"
+                    style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/security_generate"
-                    app:icon="@drawable/ic_key"
-                    app:iconTint="?attr/colorOnPrimary" />
+                    app:icon="@drawable/ic_key" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShowKey"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/security_show_key"
                     app:icon="@drawable/ic_qr" />
@@ -105,7 +102,7 @@
                     android:id="@+id/btnImportKey"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@string/security_import"
                     app:icon="@drawable/ic_download" />
@@ -113,7 +110,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            style="@style/Widget.SOSRing.Card"
+            style="@style/Widget.Material3.CardView.Elevated"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp">
@@ -134,10 +131,11 @@
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@drawable/bg_badge_soft"
+                        android:backgroundTint="?attr/colorSecondaryContainer"
                         android:contentDescription="@null"
                         android:padding="10dp"
                         android:src="@drawable/ic_phone"
-                        app:tint="?attr/tokenAccent" />
+                        app:tint="?attr/colorOnSecondaryContainer" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -145,16 +143,14 @@
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:text="@string/security_change_phone"
-                        android:textColor="@color/ink"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textAppearance="?attr/textAppearanceTitleMediumEmphasized" />
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnChangePhone"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:text="@string/security_change_phone"
                     app:icon="@drawable/ic_edit" />
