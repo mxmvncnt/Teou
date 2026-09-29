@@ -197,6 +197,7 @@
     <string name="nav_home">Home</string>
     <string name="contacts_sheet_title">Contatti</string>
     <string name="expand_contacts_sheet">Espandi i contatti</string>
+    <string name="expand_contacts_fully">Espandi completamente i contatti</string>
     <string name="collapse_contacts_sheet">Riduci i contatti</string>
     <string name="last_seen_never">Ultimo avvistamento: mai</string>
     <string name="map_request_first_hint">Tocca per richiedere la prima posizione</string>

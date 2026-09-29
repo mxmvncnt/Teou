@@ -199,6 +199,7 @@
     <string name="nav_home">Home</string>
     <string name="contacts_sheet_title">Contacts</string>
     <string name="expand_contacts_sheet">Expand contacts</string>
+    <string name="expand_contacts_fully">Expand contacts fully</string>
     <string name="collapse_contacts_sheet">Collapse contacts</string>
     <string name="last_seen_never">Last seen: never</string>
     <string name="map_request_first_hint">Tap to request the first location</string>
