@@ -9,14 +9,14 @@
 
     <application>
         <service
-            android:name=".UnifiedPushReceiver"
+            android:name=".push.unifiedpush.UnifiedPushReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="org.unifiedpush.android.connector.PUSH_EVENT" />
             </intent-filter>
         </service>
         <service
-            android:name=".LocationReplyJob"
+            android:name=".location.LocationReplyJob"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
