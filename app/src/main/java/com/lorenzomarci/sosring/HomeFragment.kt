@@ -67,7 +67,15 @@ class HomeFragment : Fragment() {
     ) { if (_binding != null) updatePermissions() }
     private val sheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
-            _binding?.fabAdd?.visibility = if (newState == BottomSheetBehavior.STATE_EXPANDED) View.VISIBLE else View.GONE
+            val expanded = newState == BottomSheetBehavior.STATE_EXPANDED
+            _binding?.fabAdd?.visibility = if (expanded) View.VISIBLE else View.GONE
+            _binding?.sheetHeader?.contentDescription = getString(
+                if (expanded) R.string.collapse_contacts_sheet else R.string.expand_contacts_sheet
+            )
+            val accessibility = if (expanded) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+                else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            _binding?.sheetScroll?.importantForAccessibility = accessibility
+            _binding?.btnPermissions?.importantForAccessibility = accessibility
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
@@ -83,7 +91,17 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         prefs = PrefsManager(requireContext())
-        BottomSheetBehavior.from(binding.contactsSheet).addBottomSheetCallback(sheetCallback)
+        val sheet = BottomSheetBehavior.from(binding.contactsSheet)
+        sheet.addBottomSheetCallback(sheetCallback)
+        sheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        sheetCallback.onStateChanged(binding.contactsSheet, sheet.state)
+        binding.sheetHeader.setOnClickListener {
+            sheet.state = if (sheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                BottomSheetBehavior.STATE_COLLAPSED
+            } else {
+                BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
         binding.fabAdd.setOnClickListener { editContact(null) }
         binding.btnPermissions.setOnClickListener {
             when {
