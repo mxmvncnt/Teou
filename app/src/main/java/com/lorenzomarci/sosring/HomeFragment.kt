@@ -405,13 +405,15 @@ class HomeFragment : Fragment() {
             return
         }
         val id = java.util.UUID.randomUUID().toString()
-        contacts.add(VipContact(name, id))
+        val contact = VipContact(name, id)
+        contacts.add(contact)
         prefs.saveContacts(contacts)
         PeerStore(requireContext()).save(
             Peer(number = id, endpoint = payload.endpoint, p256dh = payload.p256dh, auth = payload.auth, idPub = idPub)
         )
         Toast.makeText(requireContext(), getString(R.string.p2p_pair_saved, name), Toast.LENGTH_SHORT).show()
         refresh()
+        requestLocation(contact)
     }
 
     private fun fingerprintOf(idPubB64: String): String {
