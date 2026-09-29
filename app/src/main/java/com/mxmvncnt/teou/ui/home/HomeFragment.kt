@@ -214,6 +214,7 @@ class HomeFragment : Fragment() {
         ReceivedLocationStore(requireContext()).register(storeListener)
         refreshHandler.post(refreshRunnable)
         updateDevicePin()
+        refreshContactLocations()
     }
 
     override fun onPause() {
@@ -271,6 +272,13 @@ class HomeFragment : Fragment() {
         if (block != null) Toast.makeText(context, block, Toast.LENGTH_LONG).show()
         else if (Push.requestLocation(context, contact)) {
             Toast.makeText(context, getString(R.string.location_request_sent, contact.name), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun refreshContactLocations() {
+        val context = context ?: return
+        prefs.getContacts().forEach { contact ->
+            if (Push.canRequestLocation(context, contact.number)) Push.requestLocation(context, contact)
         }
     }
 
