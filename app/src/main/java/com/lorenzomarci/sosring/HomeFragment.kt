@@ -8,9 +8,12 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.lorenzomarci.sosring.databinding.FragmentHomeBinding
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraUpdateFactory
@@ -122,6 +125,7 @@ class HomeFragment : Fragment() {
             Pin(contact, location, store.unreachable(peer, location, now))
         }
 
+        val scrollY = binding.sheetScroll.scrollY
         binding.locationSummary.removeAllViews()
         if (pins.isEmpty()) {
             binding.locationSummary.addView(TextView(context).apply {
@@ -132,11 +136,33 @@ class HomeFragment : Fragment() {
         pins.forEach { pin ->
             val minutes = ((now - pin.location.receivedAt).coerceAtLeast(0L) / 60_000L)
                 .coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-            binding.locationSummary.addView(TextView(context).apply {
-                text = "${pin.contact.name}\n${resources.getQuantityString(R.plurals.last_seen_minutes, minutes, minutes)}"
-                setTextColor(ContextCompat.getColor(context, if (pin.unreachable) android.R.color.darker_gray else R.color.ink))
-                setPadding(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
-            })
+            val row = layoutInflater.inflate(R.layout.item_map_contact, binding.locationSummary, false)
+            row.alpha = if (pin.unreachable) 0.5f else 1f
+            row.findViewById<TextView>(R.id.tvMapContactName).text = pin.contact.name
+            row.findViewById<TextView>(R.id.tvMapLastSeen).text =
+                resources.getQuantityString(R.plurals.last_seen_minutes, minutes, minutes)
+            row.findViewById<ImageButton>(R.id.btnMapRefresh).apply {
+                contentDescription = getString(R.string.map_refresh_contact, pin.contact.name)
+                setOnClickListener {
+                    val block = Push.locationBlock(context, pin.contact)
+                    if (block != null) Toast.makeText(context, block, Toast.LENGTH_LONG).show()
+                    else if (Push.requestLocation(context, pin.contact)) {
+                        Toast.makeText(context, getString(R.string.location_request_sent, pin.contact.name), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            row.findViewById<ImageButton>(R.id.btnMapLocate).apply {
+                contentDescription = getString(R.string.map_find_contact, pin.contact.name)
+                setOnClickListener {
+                    BottomSheetBehavior.from(binding.contactsSheet).state = BottomSheetBehavior.STATE_COLLAPSED
+                    map?.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        LatLng(pin.location.lat, pin.location.lon), 15.0))
+                }
+            }
+            binding.locationSummary.addView(row)
+        }
+        binding.sheetScroll.post {
+            if (_binding != null) binding.sheetScroll.scrollTo(0, scrollY)
         }
 
         val style = map?.style ?: return

@@ -202,6 +202,8 @@
         <item quantity="one">Visto l’ultima volta %d minuto fa</item>
         <item quantity="other">Visto l’ultima volta %d minuti fa</item>
     </plurals>
+    <string name="map_refresh_contact">Richiedi la posizione di %1$s</string>
+    <string name="map_find_contact">Trova %1$s sulla mappa</string>
     <string name="nav_settings">Impostazioni</string>
     <string name="nav_location_log">Log posizioni</string>
     <string name="nav_privacy">Privacy e licenze</string>

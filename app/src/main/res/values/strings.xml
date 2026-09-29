@@ -204,6 +204,8 @@
         <item quantity="one">Last seen %d minute ago</item>
         <item quantity="other">Last seen %d minutes ago</item>
     </plurals>
+    <string name="map_refresh_contact">Request location from %1$s</string>
+    <string name="map_find_contact">Find %1$s on the map</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_location_log">Location log</string>
     <string name="nav_privacy">Privacy &amp; licenses</string>
