@@ -49,3 +49,5 @@ PERMESSI SPIEGATI:
 • Posizione (anche in background): usata solo per rispondere alle richieste di posizione dei contatti abbinati che hai autorizzato esplicitamente, anche quando l'app non è in primo piano; nient'altro viene raccolto o inviato
 
 CODICE SORGENTE: https://github.com/mxmvncnt/teou
+PROGETTO ORIGINALE: https://github.com/JackRushante/SOSRing
+LICENZA: GPL-3.0-or-later

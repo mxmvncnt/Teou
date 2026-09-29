@@ -49,3 +49,5 @@ PERMISSIONS EXPLAINED:
 • Location (including background): used only to answer location requests from paired contacts you explicitly authorized, even while the app is not on screen; nothing is collected or sent otherwise
 
 SOURCE CODE: https://github.com/mxmvncnt/teou
+UPSTREAM: https://github.com/JackRushante/SOSRing
+LICENSE: GPL-3.0-or-later
