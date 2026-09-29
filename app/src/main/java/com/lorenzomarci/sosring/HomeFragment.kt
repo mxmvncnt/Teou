@@ -102,6 +102,10 @@ class HomeFragment : Fragment() {
                 .coerceAtLeast(1f)
             val progress = ((parentHeight - peek - bottomSheet.top) / distanceToHalf).coerceIn(0f, 1f)
             _binding?.fabAdd?.translationY = -peek * (1f - progress)
+            // Move the whole map at half the sheet's speed, and stop once past the midway point.
+            val halfTop = (parentHeight * (1f - behavior.halfExpandedRatio)).toInt()
+            val collapsedTop = parentHeight - peek
+            _binding?.mapView?.translationY = 0.5f * (bottomSheet.top.coerceAtLeast(halfTop) - collapsedTop)
         }
     }
 
@@ -324,17 +328,43 @@ class HomeFragment : Fragment() {
             .setNegativeButton(R.string.btn_cancel, null).show()
     }
 
-    private fun refresh() {
-        val context = context ?: return
+    private fun currentPins(): List<Pin> {
+        val context = context ?: return emptyList()
         val peers = PeerStore(context).all().associateBy { PhoneUtils.normalize(it.number) }
         val store = ReceivedLocationStore(context)
         val now = System.currentTimeMillis()
-        val contacts = prefs.getContacts()
-        val pins = contacts.mapNotNull { contact ->
+        return prefs.getContacts().mapNotNull { contact ->
             val peer = peers[PhoneUtils.normalize(contact.number)] ?: return@mapNotNull null
             val location = store.get(peer) ?: return@mapNotNull null
             Pin(contact, location, store.unreachable(peer, location, now))
         }
+    }
+
+    private fun centerOnPins(pins: List<Pin>) {
+        if (pins.isEmpty()) return
+        val positions = pins.map { it.contact.number to it.location.receivedAt }
+        if (positions == lastCentered) return
+        lastCentered = positions
+        val bounds = LatLngBounds.Builder()
+        pins.forEach { bounds.include(LatLng(it.location.lat, it.location.lon)) }
+        val mapView = binding.mapView
+        mapView.post {
+            if (_binding?.mapView !== mapView) return@post
+            val camera = if (pins.size == 1) {
+                CameraUpdateFactory.newLatLngZoom(LatLng(pins[0].location.lat, pins[0].location.lon), 13.0)
+            } else {
+                CameraUpdateFactory.newLatLngBounds(bounds.build(), 80)
+            }
+            map?.animateCamera(camera, 650)
+        }
+    }
+
+    private fun refresh() {
+        val context = context ?: return
+        val now = System.currentTimeMillis()
+        val pins = currentPins()
+        val contacts = prefs.getContacts()
+        val peers = PeerStore(context).all().associateBy { PhoneUtils.normalize(it.number) }
         val pinByNumber = pins.associateBy { PhoneUtils.normalize(it.contact.number) }
 
         val scrollY = binding.sheetScroll.scrollY
@@ -412,21 +442,7 @@ class HomeFragment : Fragment() {
             style.getSourceAs<GeoJsonSource>(source)?.setGeoJson(FeatureCollection.fromFeatures(features.toTypedArray()))
         }
 
-        val positions = pins.map { it.contact.number to it.location.receivedAt }
-        if (pins.isEmpty() || positions == lastCentered) return
-        lastCentered = positions
-        val bounds = LatLngBounds.Builder()
-        pins.forEach { bounds.include(LatLng(it.location.lat, it.location.lon)) }
-        val mapView = binding.mapView
-        mapView.post {
-            if (_binding?.mapView !== mapView) return@post
-            val camera = if (pins.size == 1) {
-                CameraUpdateFactory.newLatLngZoom(LatLng(pins[0].location.lat, pins[0].location.lon), 13.0)
-            } else {
-                CameraUpdateFactory.newLatLngBounds(bounds.build(), 80)
-            }
-            map?.animateCamera(camera)
-        }
+        centerOnPins(pins)
     }
 
     companion object {
