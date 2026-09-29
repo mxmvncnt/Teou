@@ -2,8 +2,11 @@ package com.lorenzomarci.sosring
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.lorenzomarci.sosring.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity() {
@@ -15,6 +18,15 @@ class MainActivity : BaseActivity() {
         super.onCreate(null)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.navigationView) { view, insets ->
+            view.setPadding(
+                view.paddingLeft,
+                insets.getInsets(WindowInsetsCompat.Type.statusBars()).top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            insets
+        }
 
         setSupportActionBar(binding.toolbar)
         toggle = ActionBarDrawerToggle(
@@ -37,6 +49,22 @@ class MainActivity : BaseActivity() {
 
         loadFragment(HomeFragment(), getString(R.string.nav_home))
         binding.navigationView.setCheckedItem(R.id.nav_home)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    return
+                }
+                val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                if (current !is HomeFragment) {
+                    loadFragment(HomeFragment(), getString(R.string.nav_home))
+                    binding.navigationView.setCheckedItem(R.id.nav_home)
+                } else {
+                    finish()
+                }
+            }
+        })
 
         handlePairingLink(intent)
     }
@@ -68,18 +96,4 @@ class MainActivity : BaseActivity() {
         supportActionBar?.title = title
     }
 
-    @Suppress("DEPRECATION")
-    override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-            if (current !is HomeFragment) {
-                loadFragment(HomeFragment(), getString(R.string.nav_home))
-                binding.navigationView.setCheckedItem(R.id.nav_home)
-            } else {
-                super.onBackPressed()
-            }
-        }
-    }
 }
