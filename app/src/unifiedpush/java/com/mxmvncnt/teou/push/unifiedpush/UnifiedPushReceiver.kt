@@ -19,6 +19,7 @@ class UnifiedPushReceiver : PushService() {
     }
 
     override fun onMessage(message: PushMessage, instance: String) {
+        Log.i(TAG, "Push message received (decrypted=${message.decrypted})")
         if (!message.decrypted) {
             Log.w(TAG, "Received undecrypted push message, ignoring")
             return

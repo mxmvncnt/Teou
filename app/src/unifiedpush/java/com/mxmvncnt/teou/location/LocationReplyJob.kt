@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Handler
+import android.os.Build
 import android.os.Looper
 import android.os.PersistableBundle
 import android.util.Log
@@ -32,13 +33,22 @@ class LocationReplyJob : JobService() {
                 putString(ID_PUB, peer.idPub)
             }
             // ponytail: one pending fix at a time; use per-peer jobs if concurrent requests matter.
-            val job = JobInfo.Builder(JOB_ID, ComponentName(context, LocationReplyJob::class.java))
+            val builder = JobInfo.Builder(JOB_ID, ComponentName(context, LocationReplyJob::class.java))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setExtras(extras)
-                .build()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) builder.setExpedited(true)
+            else builder.setOverrideDeadline(0L)
             try {
-                if (context.getSystemService(JobScheduler::class.java).schedule(job) != JobScheduler.RESULT_SUCCESS) {
+                val scheduler = context.getSystemService(JobScheduler::class.java)
+                var result = scheduler.schedule(builder.build())
+                if (result != JobScheduler.RESULT_SUCCESS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Log.w(TAG, "Expedited reply unavailable; scheduling normal reply")
+                    result = scheduler.schedule(builder.setExpedited(false).build())
+                }
+                if (result != JobScheduler.RESULT_SUCCESS) {
                     Log.w(TAG, "Location reply could not be scheduled")
+                } else {
+                    Log.i(TAG, "Location reply scheduled")
                 }
             } catch (e: RuntimeException) {
                 Log.e(TAG, "Location job not available: ${e.message}", e)
@@ -50,6 +60,7 @@ class LocationReplyJob : JobService() {
     @Volatile private var generation = 0
 
     override fun onStartJob(params: JobParameters): Boolean {
+        Log.i(TAG, "Location reply job started")
         val token = ++generation
         val number = params.extras.getString(NUMBER) ?: return false
         val peer = PeerStore(this).get(number) ?: return false
@@ -89,7 +100,10 @@ class LocationReplyJob : JobService() {
     }
 
     private fun canShareWith(peer: Peer): Boolean {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) return false
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "Location reply blocked: background location permission missing")
+            return false
+        }
         return PrefsManager(this).getContacts().any { PhoneUtils.matches(it.number, peer.number) && it.locationEnabled }
     }
 }
