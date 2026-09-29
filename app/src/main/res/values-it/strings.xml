@@ -196,8 +196,12 @@
     <string name="location_status_token_rejected">Token auth rifiutato dal server ntfy.</string>
     <!-- Navigation -->
     <string name="nav_home">Home</string>
-    <string name="nav_contacts">Contatti</string>
-    <string name="home_map_placeholder">Nessuna posizione ricevuta. Richiedine una da Contatti.</string>
+    <string name="contacts_sheet_title">Contatti</string>
+    <string name="last_seen_never">Ultimo avvistamento: mai</string>
+    <string name="map_request_first_hint">Tocca per richiedere la prima posizione</string>
+    <string name="map_pair_first_hint">Abbina prima il contatto in Sicurezza</string>
+    <string name="map_no_contacts">Nessun contatto. Espandi il pannello e tocca + per aggiungerne uno.</string>
+    <string name="notification_permission_request">Concedi il permesso per le notifiche</string>
     <plurals name="last_seen_minutes">
         <item quantity="one">Visto l’ultima volta %d minuto fa</item>
         <item quantity="other">Visto l’ultima volta %d minuti fa</item>

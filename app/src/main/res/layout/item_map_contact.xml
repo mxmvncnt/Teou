@@ -7,9 +7,11 @@
     android:orientation="horizontal">
 
     <LinearLayout
+        android:id="@+id/mapContactText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
         android:orientation="vertical">
 
         <TextView
@@ -17,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/ink"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
@@ -47,5 +49,15 @@
         android:contentDescription="@string/map_find_contact"
         android:padding="12dp"
         android:src="@drawable/ic_target"
+        android:tint="@color/ink" />
+
+    <ImageButton
+        android:id="@+id/btnMapMore"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/more_icon_desc"
+        android:padding="12dp"
+        android:src="@drawable/ic_more_vert"
         android:tint="@color/ink" />
 </LinearLayout>

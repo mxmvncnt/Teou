@@ -26,7 +26,6 @@ class MainActivity : BaseActivity() {
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> loadFragment(HomeFragment(), getString(R.string.nav_home))
-                R.id.nav_contacts -> loadFragment(ContactsFragment(), getString(R.string.nav_contacts))
                 R.id.nav_location_log -> loadFragment(LocationLogFragment(), getString(R.string.nav_location_log))
                 R.id.nav_security -> loadFragment(SecurityFragment(), getString(R.string.security_title))
             }

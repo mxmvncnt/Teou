@@ -198,8 +198,12 @@
     <string name="location_status_token_rejected">Auth token rejected by ntfy server.</string>
     <!-- Navigation -->
     <string name="nav_home">Home</string>
-    <string name="nav_contacts">Contacts</string>
-    <string name="home_map_placeholder">No locations received yet. Request one from Contacts.</string>
+    <string name="contacts_sheet_title">Contacts</string>
+    <string name="last_seen_never">Last seen: never</string>
+    <string name="map_request_first_hint">Tap to request the first location</string>
+    <string name="map_pair_first_hint">Pair this contact in Security first</string>
+    <string name="map_no_contacts">No contacts yet. Expand the sheet and tap + to add one.</string>
+    <string name="notification_permission_request">Grant notification permission</string>
     <plurals name="last_seen_minutes">
         <item quantity="one">Last seen %d minute ago</item>
         <item quantity="other">Last seen %d minutes ago</item>
