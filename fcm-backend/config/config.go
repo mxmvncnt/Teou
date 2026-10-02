@@ -16,9 +16,9 @@ const (
 
 var ConfigName = thisOrThat(os.Getenv("CONFIG_NAME"), "DEFAULT-NO-CONFIG")
 
-// ProjectName config
+// Firebase config
 
-var ProjectName = thisOrThat(os.Getenv("PROJECT_NAME"), "backbone")
+var FirebaseCredentialsFile = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 // Logging config
 
@@ -28,26 +28,6 @@ var LogLevel = getLogLevel(os.Getenv("LOG_LEVEL"))
 
 var ServerHostname = thisOrThat(os.Getenv("SERVER_HOST"), "localhost")
 var ServerPort = thisOrThat(os.Getenv("SERVER_PORT"), "8080")
-var FrontendUrl = thisOrThat(os.Getenv("FRONTEND_URL"), "localhost")
-
-// Database config
-
-var DatabaseHost = thisOrThat(os.Getenv("DB_HOST"), "localhost")
-var DatabasePort = thisOrThat(os.Getenv("DB_PORT"), "5432")
-var DatabaseUsername = thisOrThat(os.Getenv("DB_USER"), "username")
-var DatabasePassword = thisOrThat(os.Getenv("DB_PASS"), "password")
-var DatabaseName = thisOrThat(os.Getenv("DB_NAME"), "mydb")
-var DatabaseURL = "postgres://" + DatabaseUsername + ":" + DatabasePassword + "@" + DatabaseHost + ":" + DatabasePort + "/" + DatabaseName
-
-// Passkey server config
-
-var PasskeyServerURL = thisOrThat(os.Getenv("PASSKEY_SERVER_URL"), "http://localhost:9091")
-
-// Resend email provider config
-
-var ResendApiKey = thisOrThat(os.Getenv("RESEND_API_KEY"), "")
-
-var JWTSigningKey = []byte(thisOrThat(os.Getenv("JWT_SIGNING_KEY"), ""))
 
 func thisOrThat(this, that string) string {
 	if this != "" {
