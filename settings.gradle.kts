@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Teou"
-include(":app")
+include(":fcm", ":unifiedpush")

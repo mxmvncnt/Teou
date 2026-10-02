@@ -15,6 +15,14 @@ This is still WIP
 Using FCM is a bit more tricky because it requires a dedicated backend to hold the FCM keys. Otherwise, anyone could simply spam users with a bunch of notifications.
 But with the backend running, the principle of the app would remain the same: users ask connected contacts for their location, and only then is it given.
 
+## Running in Android Studio
+
+Sync Gradle, then select **FCM** and your FCM phone, or **UnifiedPush** and
+your GrapheneOS phone, and click Run. Each is a separate Android app module
+with its own distribution, so switching run configurations switches the app
+without changing Build Variants. Android Studio remembers the device for each
+configuration. Both support the normal Run and Debug buttons.
+
 # Adding a contact
 
 Adding a contact is a mutual process that each party has to conduct.
