@@ -86,6 +86,21 @@ tasks.withType<com.google.gms.googleservices.GoogleServicesTask>().configureEach
     if (name.startsWith("processUnifiedpush")) enabled = false
 }
 
+androidComponents.onVariants(androidComponents.selector().withBuildType("debug")) { variant ->
+    val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
+    val adb = androidComponents.sdkComponents.adb
+    val applicationId = variant.applicationId
+    tasks.register<Exec>("run$variantName") {
+        group = "install"
+        description = "Install and launch ${variant.name} on the connected device"
+        dependsOn("install$variantName")
+        doFirst {
+            commandLine(adb.get().asFile.absolutePath, "shell", "am", "start", "-n",
+                "${applicationId.get()}/com.mxmvncnt.teou.app.MainActivity")
+        }
+    }
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.19.1")
     implementation("androidx.appcompat:appcompat:1.8.0")
