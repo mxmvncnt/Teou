@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="security_title">Security</string>
+    <string name="p2p_block_not_registered">Configure your FCM relay URL in Security and wait for Firebase registration.</string>
+    <string name="fcm_relay_title">FCM relay</string>
+    <string name="fcm_relay_url_label">FCM relay URL</string>
+    <string name="fcm_relay_url_hint">https://push.example.com/</string>
+    <string name="fcm_relay_url_help">Base URL of your FCM proxy, without /send. Leave empty to clear.</string>
+    <string name="fcm_relay_url_invalid">Enter a valid HTTPS URL without credentials, query parameters, or a fragment.</string>
+    <string name="fcm_relay_url_saved">FCM relay setting saved</string>
+</resources>

@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 val localProps = Properties().apply {
@@ -35,6 +36,9 @@ android {
 
     productFlavors {
         create("unifiedpush") {
+            dimension = "distribution"
+        }
+        create("fcm") {
             dimension = "distribution"
         }
     }
@@ -78,6 +82,10 @@ kotlin {
     }
 }
 
+tasks.withType<com.google.gms.googleservices.GoogleServicesTask>().configureEach {
+    if (name.startsWith("processUnifiedpush")) enabled = false
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.19.1")
     implementation("androidx.appcompat:appcompat:1.8.0")
@@ -95,6 +103,8 @@ dependencies {
     implementation("androidx.camera:camera-view:1.6.2")
 
     "unifiedpushImplementation"("org.unifiedpush.android:connector:3.3.5")
+    "fcmImplementation"(platform("com.google.firebase:firebase-bom:34.19.0"))
+    "fcmImplementation"("com.google.firebase:firebase-messaging")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20260814")

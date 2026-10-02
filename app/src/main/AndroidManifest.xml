@@ -46,6 +46,11 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <service
+            android:name=".location.LocationReplyJob"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
 
     </application>
 </manifest>

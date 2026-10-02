@@ -2,18 +2,38 @@ package com.mxmvncnt.teou.push
 
 import android.app.Activity
 import android.content.Context
-import com.mxmvncnt.teou.*
+import com.mxmvncnt.teou.R
 import com.mxmvncnt.teou.data.VipContact
-import com.mxmvncnt.teou.push.unifiedpush.PushProvider
+import com.mxmvncnt.teou.location.ReceivedLocationStore
+import com.mxmvncnt.teou.messaging.*
 
 object Push {
-    fun locationBlock(context: Context, contact: VipContact): String? = PushProvider.locationBlock(context, contact)
+    fun locationBlock(context: Context, contact: VipContact): String? = locationBlock(context, contact.number)
     fun ensureRegistered(activity: Activity) = PushProvider.ensureRegistered(activity)
 
-    fun requestLocation(context: Context, contact: VipContact): Boolean =
-        PushProvider.requestLocation(context, contact)
+    @Synchronized
+    fun requestLocation(context: Context, contact: VipContact): Boolean {
+        if (locationBlock(context, contact) != null) return false
+        val peer = PeerStore(context).get(contact.number) ?: return false
+        ReceivedLocationStore(context).requested(peer)
+        Thread { P2pMessaging.requestLocation(context.applicationContext, peer) }.start()
+        return true
+    }
 
     fun canRequestLocation(context: Context, number: String): Boolean =
-        PushProvider.canRequestLocation(context, number)
+        locationBlock(context, number) == null
+
+    private fun locationBlock(context: Context, number: String): String? {
+        val peer = PeerStore(context).get(number)
+        return when (P2pLocationReadiness.check(PushProvider.isRegistered(context), peer != null)) {
+            P2pBlock.NONE -> {
+                val remaining = peer?.let { ReceivedLocationStore(context).requestCooldownRemaining(it) } ?: 0L
+                if (remaining > 0L) context.getString(R.string.location_request_cooldown, (remaining + 999L) / 1_000L)
+                else null
+            }
+            P2pBlock.NOT_REGISTERED -> context.getString(R.string.p2p_block_not_registered)
+            P2pBlock.NOT_PAIRED -> context.getString(R.string.p2p_block_not_paired)
+        }
+    }
 
 }

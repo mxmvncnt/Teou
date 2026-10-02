@@ -1,45 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="security_title">Security</string>
-
-    <string name="p2p_block_not_registered">Push not registered yet. Install a UnifiedPush app (e.g. ntfy), open it once, then reopen téou.</string>
-    <string name="p2p_block_not_paired">This contact is not paired yet. Scan their pairing QR in the Security screen first.</string>
     <string name="location_service_not_running">Not ready: make sure your push channel is registered and this contact is paired, then try again.</string>
-
-    <string name="p2p_security_title">Your push channel</string>
-    <string name="p2p_security_desc">Pairing links you to a contact directly. Show your QR so they can request your location; scan theirs to request from them.</string>
-    <string name="p2p_status_registered">Push channel ready</string>
-    <string name="p2p_status_waiting">Waiting for a UnifiedPush distributor. Open ntfy (or another distributor) and reopen this screen.</string>
-    <string name="p2p_btn_show_qr">Show my pairing QR</string>
-    <string name="p2p_my_qr_title">My pairing QR</string>
-    <string name="p2p_my_qr_hint">Let the other person scan this to pair with you.</string>
-    <string name="p2p_peers_header">Paired contacts</string>
-    <string name="p2p_peers_empty">No paired contacts yet.</string>
-    <string name="followers_title">People who can see me</string>
-    <string name="followers_empty">Nobody can see your location.</string>
-    <string name="paired_off_title">Paired, not sharing</string>
-    <string name="requests_title">Connection requests</string>
-    <string name="requests_hint">Someone here used your pairing link or QR. To allow them, pair their QR from Home +, then turn on sharing for them above. Until then they see nothing.</string>
-    <string name="requests_empty">No connection requests.</string>
-    <string name="request_subtitle">Attempts: %1$d · Last: %2$s</string>
-    <string name="request_dismiss">Dismiss request</string>
-    <string name="p2p_pair_invalid">Invalid pairing QR.</string>
-    <string name="p2p_pair_saved">Paired with %1$s</string>
-    <string name="pair_copy_link">Copy pairing link</string>
-    <string name="pair_link_copied">Pairing link copied</string>
-    <string name="p2p_peer_remove_title">Remove pairing</string>
-    <string name="p2p_peer_remove_msg">Remove the pairing for %1$s?</string>
-
-    <string name="p2p_location_share_label">Share my location with this contact</string>
-    <string name="p2p_location_share_hint">Off by default. Turn on only for contacts you want to be able to see your location when they request it.</string>
-
-    <string name="p2p_peer_fingerprint">Identity: %1$s</string>
-    <string name="p2p_fingerprint_label">Verify this code out-of-band before trusting:</string>
-    <string name="p2p_duplicate_identity_title">Identity already in use</string>
-    <string name="p2p_duplicate_identity_msg">This identity is already paired with %1$s.\n\nLinking it to %2$s as well means both contacts would share the same identity: %3$s\n\nOnly continue if you expected this. Otherwise this could be an impersonation attempt.</string>
-    <string name="p2p_duplicate_identity_confirm">Link anyway</string>
-
-    <string name="p2p_no_distributor_title">No push distributor installed</string>
-    <string name="p2p_no_distributor_msg">Direct location sharing needs a UnifiedPush distributor app (for example ntfy). Install one from your app store or F-Droid, open it once, then reopen this screen.</string>
-
 </resources>
