@@ -2,31 +2,48 @@ package main
 
 import (
 	"context"
-	"log/slog"
-	"os"
+	"errors"
+	"net"
+	"net/http"
+	"time"
 
 	"fcm-backend/config"
+	"fcm-backend/middleware"
+	"fcm-backend/routes"
+	"fcm-backend/utils/logger"
 
 	firebase "firebase.google.com/go/v4"
 	"google.golang.org/api/option"
 )
 
 func main() {
-	ctx := context.Background()
 	var opts []option.ClientOption
-	if config.FirebaseCredentialsFile != "" {
-		opts = append(opts, option.WithCredentialsFile(config.FirebaseCredentialsFile))
-	}
-	app, err := firebase.NewApp(ctx, nil, opts...)
+	opts = append(opts, option.WithAuthCredentialsFile(option.ServiceAccount, config.FirebaseCredentialsFile))
+
+	app, err := firebase.NewApp(context.Background(), nil, opts...)
 	if err != nil {
-		slog.Error("initialize Firebase", "error", err)
-		os.Exit(1)
+		logger.Fatalf("Initialize Firebase: %v", err)
 	}
 
-	if _, err := app.Messaging(ctx); err != nil {
-		slog.Error("initialize Firebase Messaging", "error", err)
-		os.Exit(1)
+	firebaseClient, err := app.Messaging(context.Background())
+	if err != nil {
+		logger.Fatalf("Initialize Firebase Messaging: %v", err)
 	}
 
-	slog.Info("Firebase Messaging initialized")
+	routes.Handler = routes.NewRoutesHandler(firebaseClient)
+	router := http.NewServeMux()
+	router.HandleFunc("POST /send", middleware.Combined(routes.Handler.Send))
+
+	server := &http.Server{
+		Addr:              net.JoinHostPort(config.ServerHostname, config.ServerPort),
+		Handler:           http.MaxBytesHandler(router, 8*1024),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      20 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	logger.Info("Server started on http://" + server.Addr)
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		logger.Fatalf("HTTP server: %v", err)
+	}
 }

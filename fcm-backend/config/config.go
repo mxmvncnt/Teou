@@ -18,7 +18,7 @@ var ConfigName = thisOrThat(os.Getenv("CONFIG_NAME"), "DEFAULT-NO-CONFIG")
 
 // Firebase config
 
-var FirebaseCredentialsFile = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+var FirebaseCredentialsFile = thisOrThat(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"), "./google-credentials.json")
 
 // Logging config
 
