@@ -1,11 +1,35 @@
 package com.mxmvncnt.teou.push.unifiedpush
 
 import com.mxmvncnt.teou.messaging.WebPushCrypto
+import com.mxmvncnt.teou.messaging.PushTransport
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class UnifiedPushPairingTest {
+
+    @Test
+    fun decode_legacyPairingDefaultsToUnifiedPush() {
+        val legacy = encodedJson("""{"e":"https://push.example/up","p":"key","a":"secret","i":"identity"}""")
+        assertEquals(PairPayload("https://push.example/up", "key", "secret", "identity"), UnifiedPushPairing.decode(legacy))
+    }
+
+    @Test
+    fun roundTrip_fcmIncludesRecipientAndKeys() {
+        val payload = PairPayload("", "key", "secret", "identity", PushTransport.FCM, "https://relay.example/fcm/", "recipient")
+        assertEquals(payload, UnifiedPushPairing.decode(UnifiedPushPairing.encode(payload)))
+    }
+
+    @Test
+    fun decode_rejectsUnknownTransportAndIncompleteFcmAddress() {
+        for (json in listOf(
+            """{"transport":"sms","e":"https://push.example/up","p":"key","a":"secret"}""",
+            """{"transport":"fcm","relayUrl":"https://relay.example/","p":"key","a":"secret"}""",
+            """{"transport":"fcm","token":"recipient","p":"key","a":"secret"}"""
+        )) assertNull(UnifiedPushPairing.decode(encodedJson(json)))
+    }
+
+    private fun encodedJson(json: String) = "teou1:" + WebPushCrypto.b64enc(json.toByteArray())
 
     @Test
     fun roundTrip_withKeyFingerprint() {

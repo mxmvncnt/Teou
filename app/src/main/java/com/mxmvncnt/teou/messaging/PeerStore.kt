@@ -11,7 +11,10 @@ data class Peer(
     val endpoint: String,
     val p256dh: String,
     val auth: String,
-    val idPub: String
+    val idPub: String,
+    val transport: PushTransport = PushTransport.UNIFIED_PUSH,
+    val relayUrl: String? = null,
+    val token: String? = null
 )
 
 class PeerStore(private val context: Context) {
@@ -24,12 +27,16 @@ class PeerStore(private val context: Context) {
             val arr = JSONArray(json)
             (0 until arr.length()).map { i ->
                 val obj = arr.getJSONObject(i)
+                val transport = requireNotNull(PushTransport.fromWireName(obj.optString("transport", "unifiedpush")))
                 Peer(
                     number = obj.getString("number"),
-                    endpoint = obj.getString("endpoint"),
+                    endpoint = obj.optString("endpoint", ""),
                     p256dh = obj.getString("p256dh"),
                     auth = obj.getString("auth"),
-                    idPub = obj.getString("idPub")
+                    idPub = obj.getString("idPub"),
+                    transport = transport,
+                    relayUrl = obj.optString("relayUrl", "").ifBlank { null },
+                    token = obj.optString("token", "").ifBlank { null }
                 )
             }
         } catch (e: Exception) {
@@ -75,6 +82,9 @@ class PeerStore(private val context: Context) {
                 put("p256dh", peer.p256dh)
                 put("auth", peer.auth)
                 put("idPub", peer.idPub)
+                put("transport", peer.transport.wireName)
+                put("relayUrl", peer.relayUrl)
+                put("token", peer.token)
             })
         }
         prefs.edit().putString(KEY_PEERS, arr.toString()).apply()

@@ -2,12 +2,17 @@ package com.mxmvncnt.teou.push.unifiedpush
 
 import org.json.JSONObject
 import com.mxmvncnt.teou.messaging.WebPushCrypto
+import com.mxmvncnt.teou.messaging.PushTransport
+import com.mxmvncnt.teou.push.fcm.FcmRelaySender
 
 data class PairPayload(
     val endpoint: String,
     val p256dh: String,
     val auth: String,
-    val idPub: String? = null
+    val idPub: String? = null,
+    val transport: PushTransport = PushTransport.UNIFIED_PUSH,
+    val relayUrl: String? = null,
+    val token: String? = null
 )
 
 object UnifiedPushPairing {
@@ -22,7 +27,14 @@ object UnifiedPushPairing {
 
     fun encode(payload: PairPayload): String {
         val json = JSONObject().apply {
-            put("e", payload.endpoint)
+            put("transport", payload.transport.wireName)
+            when (payload.transport) {
+                PushTransport.UNIFIED_PUSH -> put("e", payload.endpoint)
+                PushTransport.FCM -> {
+                    put("relayUrl", payload.relayUrl)
+                    put("token", payload.token)
+                }
+            }
             put("p", payload.p256dh)
             put("a", payload.auth)
             payload.idPub?.let { put("i", it) }
@@ -36,12 +48,19 @@ object UnifiedPushPairing {
         return try {
             val decoded = String(WebPushCrypto.b64dec(body.removePrefix(PREFIX)), Charsets.UTF_8)
             val json = JSONObject(decoded)
+            val transport = PushTransport.fromWireName(json.optString("transport", "unifiedpush")) ?: return null
             val endpoint = json.optString("e", "")
             val p256dh = json.optString("p", "")
             val auth = json.optString("a", "")
-            if (endpoint.isBlank() || p256dh.isBlank() || auth.isBlank()) return null
+            val relayUrl = json.optString("relayUrl", "").ifBlank { null }
+            val token = json.optString("token", "").ifBlank { null }
+            if (p256dh.isBlank() || auth.isBlank()) return null
+            when (transport) {
+                PushTransport.UNIFIED_PUSH -> if (endpoint.isBlank()) return null
+                PushTransport.FCM -> if (relayUrl == null || FcmRelaySender.normalizeRelayUrl(relayUrl) == null || token == null) return null
+            }
             val idPub = if (json.has("i")) json.optString("i", "").ifBlank { null } else null
-            PairPayload(endpoint, p256dh, auth, idPub)
+            PairPayload(endpoint, p256dh, auth, idPub, transport, relayUrl, token)
         } catch (e: Exception) {
             null
         }

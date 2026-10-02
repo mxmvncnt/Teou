@@ -34,6 +34,27 @@ object WebPushCrypto {
         return encryptInternal(plaintext, uaPublic, auth, ephemeral, salt, DEFAULT_RECORD_SIZE)
     }
 
+    /** Opens the single aes128gcm record used by Web Push (RFC 8291). */
+    fun decrypt(body: ByteArray, privateKey: ECPrivateKey, publicKey: ByteArray, auth: ByteArray): ByteArray {
+        require(body.size in 103..4096) { "Invalid Web Push body size" }
+        require(auth.size == 16) { "Invalid auth secret" }
+        val recordSize = (16..19).fold(0L) { value, i -> (value shl 8) or (body[i].toLong() and 0xff) }
+        val keyLength = body[20].toInt() and 0xff
+        require(keyLength == 65) { "Invalid sender key length" }
+        val senderPublic = body.copyOfRange(21, 86)
+        val ciphertext = body.copyOfRange(86, body.size)
+        require(recordSize > ciphertext.size) { "Expected a single final record" }
+        val shared = ecdh(privateKey, loadPublic(senderPublic))
+        val keys = deriveKeys(shared, auth, publicKey, senderPublic, body.copyOfRange(0, 16))
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(keys.cek, "AES"), GCMParameterSpec(128, keys.nonce))
+        val record = cipher.doFinal(ciphertext)
+        var end = record.size
+        while (end > 0 && record[end - 1] == 0.toByte()) end--
+        require(end > 0 && record[end - 1] == 0x02.toByte()) { "Invalid final record delimiter" }
+        return record.copyOfRange(0, end - 1)
+    }
+
     internal fun encryptInternal(
         plaintext: ByteArray,
         uaPublic: ByteArray,

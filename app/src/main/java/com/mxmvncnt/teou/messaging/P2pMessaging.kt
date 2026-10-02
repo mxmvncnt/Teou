@@ -7,6 +7,7 @@ import com.mxmvncnt.teou.util.PhoneUtils
 import com.mxmvncnt.teou.util.ControlRetryPolicy
 import com.mxmvncnt.teou.location.*
 import com.mxmvncnt.teou.push.unifiedpush.WebPushSender
+import com.mxmvncnt.teou.push.fcm.FcmRelaySender
 
 object P2pMessaging {
 
@@ -92,7 +93,12 @@ object P2pMessaging {
     private fun sendTo(context: Context, peer: Peer, payload: ByteArray, attempts: Int = 1): Boolean {
         val envelope = P2pEnvelope.seal(payload, IdentityKeyStore.idPub(), IdentityKeyStore::sign)
         val body = WebPushCrypto.encrypt(envelope, peer.p256dh, peer.auth)
-        return WebPushSender.send(peer.endpoint, body, attempts)
+        return when (peer.transport) {
+            PushTransport.UNIFIED_PUSH -> WebPushSender.send(peer.endpoint, body, attempts)
+            PushTransport.FCM -> FcmRelaySender.send(
+                requireNotNull(peer.relayUrl), requireNotNull(peer.token), body, attempts
+            )
+        }
     }
 
 }

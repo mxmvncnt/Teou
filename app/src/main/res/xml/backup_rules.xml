@@ -3,4 +3,5 @@
     <exclude domain="sharedpref" path="teou_peers.xml" />
     <exclude domain="sharedpref" path="teou_unifiedpush.xml" />
     <exclude domain="sharedpref" path="teou_prefs.xml" />
+    <exclude domain="sharedpref" path="teou_encryption_keys.xml" />
 </full-backup-content>

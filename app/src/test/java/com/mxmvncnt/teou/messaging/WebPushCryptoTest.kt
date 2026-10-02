@@ -3,6 +3,7 @@ package com.mxmvncnt.teou.messaging
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
+import org.junit.Assert.assertThrows
 import java.security.KeyPair
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
@@ -74,7 +75,7 @@ class WebPushCryptoTest {
 
         val body = WebPushCrypto.encrypt(message, WebPushCrypto.b64enc(receiverPublic), WebPushCrypto.b64enc(auth))
 
-        val decrypted = decrypt(body, receiver.private as ECPrivateKey, receiverPublic, auth)
+        val decrypted = WebPushCrypto.decrypt(body, receiver.private as ECPrivateKey, receiverPublic, auth)
         assertArrayEquals(message, decrypted)
     }
 
@@ -101,21 +102,54 @@ class WebPushCryptoTest {
         }
     }
 
-    private fun decrypt(body: ByteArray, receiverPrivate: ECPrivateKey, receiverPublic: ByteArray, auth: ByteArray): ByteArray {
-        val salt = body.copyOfRange(0, 16)
-        val idLen = body[20].toInt() and 0xff
-        val keyId = body.copyOfRange(21, 21 + idLen)
-        val ciphertext = body.copyOfRange(21 + idLen, body.size)
+    @Test
+    fun decrypt_matchesRfc8291Vector() {
+        val body = WebPushCrypto.b64dec(rfcSalt) + byteArrayOf(0, 0, 16, 0, 65) +
+            WebPushCrypto.b64dec(rfcAsPublic) + WebPushCrypto.b64dec("8pfeW0KbunFT06SuDKoJH9Ql87S1QUrdirN6GcG7sFz1y1sqLgVi1VhjVkHsUoEsbI_0LpXMuGvnzQ")
+        assertEquals("When I grow up, I want to be a watermelon", String(WebPushCrypto.decrypt(body,
+            WebPushCrypto.loadPrivate(WebPushCrypto.b64dec(rfcUaPrivate)), WebPushCrypto.b64dec(rfcUaPublic),
+            WebPushCrypto.b64dec(rfcAuth))))
+    }
 
-        val shared = WebPushCrypto.ecdh(receiverPrivate, WebPushCrypto.loadPublic(keyId))
-        val keys = WebPushCrypto.deriveKeys(shared, auth, receiverPublic, keyId, salt)
+    @Test
+    fun decrypt_rejectsTamperingWrongKeysAndMalformedHeaders() {
+        val privateKey = WebPushCrypto.loadPrivate(WebPushCrypto.b64dec(rfcUaPrivate))
+        val publicKey = WebPushCrypto.b64dec(rfcUaPublic)
+        val auth = WebPushCrypto.b64dec(rfcAuth)
+        val body = WebPushCrypto.encrypt("message".toByteArray(), rfcUaPublic, rfcAuth)
+        val malformed = listOf(
+            body.copyOf(50), ByteArray(4097),
+            body.copyOf().apply { this[lastIndex] = (this[lastIndex].toInt() xor 1).toByte() },
+            body.copyOf().apply { this[20] = 64 },
+            body.copyOf().apply { for (i in 16..19) this[i] = 0 }
+        )
+        for (input in malformed) assertThrows(Exception::class.java) {
+            WebPushCrypto.decrypt(input, privateKey, publicKey, auth)
+        }
+        assertThrows(Exception::class.java) { WebPushCrypto.decrypt(body, privateKey, publicKey, ByteArray(16)) }
+        assertThrows(Exception::class.java) {
+            WebPushCrypto.decrypt(body, WebPushCrypto.generateKeyPair().private as ECPrivateKey, publicKey, auth)
+        }
+    }
 
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(keys.cek, "AES"), GCMParameterSpec(128, keys.nonce))
-        val record = cipher.doFinal(ciphertext)
-
-        var end = record.size
-        while (end > 0 && record[end - 1].toInt() == 0) end--
-        return record.copyOfRange(0, end - 1)
+    @Test
+    fun decrypt_checksAuthenticatedPaddingDelimiter() {
+        val sender = KeyPair(WebPushCrypto.loadPublic(WebPushCrypto.b64dec(rfcAsPublic)),
+            WebPushCrypto.loadPrivate(WebPushCrypto.b64dec(rfcAsPrivate)))
+        val publicKey = WebPushCrypto.b64dec(rfcUaPublic)
+        val auth = WebPushCrypto.b64dec(rfcAuth)
+        val salt = WebPushCrypto.b64dec(rfcSalt)
+        val keys = WebPushCrypto.deriveKeys(WebPushCrypto.ecdh(sender.private as ECPrivateKey,
+            WebPushCrypto.loadPublic(publicKey)), auth, publicKey, WebPushCrypto.b64dec(rfcAsPublic), salt)
+        fun body(record: ByteArray): ByteArray {
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(keys.cek, "AES"), GCMParameterSpec(128, keys.nonce))
+            return salt + byteArrayOf(0, 0, 16, 0, 65) + WebPushCrypto.b64dec(rfcAsPublic) + cipher.doFinal(record)
+        }
+        val privateKey = WebPushCrypto.loadPrivate(WebPushCrypto.b64dec(rfcUaPrivate))
+        assertArrayEquals(byteArrayOf(42), WebPushCrypto.decrypt(body(byteArrayOf(42, 2, 0, 0)), privateKey, publicKey, auth))
+        for (record in listOf(byteArrayOf(42, 1), byteArrayOf(0, 0), byteArrayOf(42, 3, 0))) {
+            assertThrows(IllegalArgumentException::class.java) { WebPushCrypto.decrypt(body(record), privateKey, publicKey, auth) }
+        }
     }
 }

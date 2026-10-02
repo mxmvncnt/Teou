@@ -447,7 +447,8 @@ class HomeFragment : Fragment() {
         contacts.add(contact)
         prefs.saveContacts(contacts)
         PeerStore(requireContext()).save(
-            Peer(number = id, endpoint = payload.endpoint, p256dh = payload.p256dh, auth = payload.auth, idPub = idPub)
+            Peer(number = id, endpoint = payload.endpoint, p256dh = payload.p256dh, auth = payload.auth,
+                idPub = idPub, transport = payload.transport, relayUrl = payload.relayUrl, token = payload.token)
         )
         Toast.makeText(requireContext(), getString(R.string.p2p_pair_saved, name), Toast.LENGTH_SHORT).show()
         refresh()
