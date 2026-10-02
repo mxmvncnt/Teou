@@ -23,3 +23,4 @@ fcm-backend/*-firebase-adminsdk-*.json
 !example.env
 fcm-backend/fcm-backend
 tmp/
+google-services.json
