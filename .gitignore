@@ -16,3 +16,6 @@ local.properties
 
 # Superpowers SDD scratch (ledger, reports, review packages)
 .superpowers/
+fcm-backend/*-firebase-adminsdk-*.json
+*.env
+!example.env
