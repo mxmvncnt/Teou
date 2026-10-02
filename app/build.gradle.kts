@@ -90,13 +90,25 @@ androidComponents.onVariants(androidComponents.selector().withBuildType("debug")
     val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
     val adb = androidComponents.sdkComponents.adb
     val applicationId = variant.applicationId
-    tasks.register<Exec>("run$variantName") {
+    tasks.register("run$variantName") {
         group = "install"
-        description = "Install and launch ${variant.name} on the connected device"
+        description = "Install and launch ${variant.name} on connected devices"
         dependsOn("install$variantName")
-        doFirst {
-            commandLine(adb.get().asFile.absolutePath, "shell", "am", "start", "-n",
-                "${applicationId.get()}/com.mxmvncnt.teou.app.MainActivity")
+        doLast {
+            val adbPath = adb.get().asFile.absolutePath
+            val serial = providers.gradleProperty("android.injected.device.serial")
+                .orElse(providers.environmentVariable("ANDROID_SERIAL")).orNull
+            val devices = serial?.let { listOf(it) } ?: providers.exec {
+                commandLine(adbPath, "devices")
+            }.standardOutput.asText.get().lineSequence()
+                .filter { it.endsWith("\tdevice") }.map { it.substringBefore('\t') }.toList()
+            check(devices.isNotEmpty()) { "No authorized Android device connected" }
+            devices.forEach { device ->
+                println(providers.exec {
+                    commandLine(adbPath, "-s", device, "shell", "am", "start", "-n",
+                        "${applicationId.get()}/com.mxmvncnt.teou.app.MainActivity")
+                }.standardOutput.asText.get())
+            }
         }
     }
 }
