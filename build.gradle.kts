@@ -52,10 +52,12 @@ subprojects {
 
             signingConfigs {
                 create("release") {
-                    storeFile = file("../sosring-release.jks")
-                    storePassword = localProps.getProperty("STORE_PASSWORD", "")
-                    keyAlias = "sosring"
-                    keyPassword = localProps.getProperty("KEY_PASSWORD", "")
+                    storeFile = file("../teou-release.jks")
+                    keyAlias = "teou"
+                    storePassword = System.getenv("STORE_PASSWORD")
+                        ?: localProps.getProperty("STORE_PASSWORD", "")
+                    keyPassword = System.getenv("KEY_PASSWORD")
+                        ?: localProps.getProperty("KEY_PASSWORD", "")
                 }
             }
 
