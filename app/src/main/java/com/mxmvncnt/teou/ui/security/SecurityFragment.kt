@@ -13,21 +13,19 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.mxmvncnt.teou.*
 import com.mxmvncnt.teou.R
 import com.mxmvncnt.teou.data.PrefsManager
 import com.mxmvncnt.teou.data.VipContact
 import com.mxmvncnt.teou.app.ThemeManager
 import com.mxmvncnt.teou.messaging.*
-import com.mxmvncnt.teou.location.ReceivedLocationStore
-import com.mxmvncnt.teou.push.unifiedpush.*
+import com.mxmvncnt.teou.push.unifiedpush.UnifiedPushPairing
+import com.mxmvncnt.teou.push.PushProvider
 import com.mxmvncnt.teou.util.PhoneUtils
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mxmvncnt.teou.databinding.SecurityFragmentBinding
-import org.unifiedpush.android.connector.UnifiedPush
 
 class SecurityFragment : Fragment() {
 
@@ -38,6 +36,9 @@ class SecurityFragment : Fragment() {
     private val attemptsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
         activity?.runOnUiThread { if (_binding != null) refreshRequests() }
     }
+    private val pushStatusListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        activity?.runOnUiThread { if (_binding != null) refreshStatus() }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = SecurityFragmentBinding.inflate(inflater, container, false)
@@ -47,6 +48,7 @@ class SecurityFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prefs = PrefsManager(requireContext())
+        SecurityPushSettings.bind(binding.pushSettingsContainer)
         binding.btnShowMyQr.setOnClickListener { showMyQrDialog() }
     }
 
@@ -55,10 +57,12 @@ class SecurityFragment : Fragment() {
         refreshStatus()
         refreshPeerList()
         FollowerAttempts(requireContext()).register(attemptsListener)
+        PushProvider.registerStatusListener(requireContext(), pushStatusListener)
     }
 
     override fun onPause() {
         FollowerAttempts(requireContext()).unregister(attemptsListener)
+        PushProvider.unregisterStatusListener(requireContext(), pushStatusListener)
         super.onPause()
     }
 
@@ -68,71 +72,81 @@ class SecurityFragment : Fragment() {
     }
 
     private fun refreshStatus() {
-        val registered = !UnifiedPushStore(requireContext()).endpointUrl.isNullOrBlank()
+        val registered = PushProvider.isRegistered(requireContext())
         binding.tvP2pStatus.text = getString(
             if (registered) R.string.p2p_status_registered else R.string.p2p_status_waiting
         )
         binding.btnShowMyQr.isEnabled = registered
-        val noDistributor = UnifiedPush.getDistributors(requireContext()).isEmpty()
+        val noDistributor = PushProvider.needsDistributor(requireContext())
         binding.cardNoDistributor.visibility = if (noDistributor) View.VISIBLE else View.GONE
     }
 
     private fun showMyQrDialog() {
-        val store = UnifiedPushStore(requireContext())
-        val endpoint = store.endpointUrl
-        val pubKey = store.pubKey
-        val auth = store.auth
-        if (endpoint.isNullOrBlank() || pubKey.isNullOrBlank() || auth.isNullOrBlank()) {
+        val appContext = requireContext().applicationContext
+        val currentBinding = binding
+        if (!PushProvider.isRegistered(appContext)) {
             Toast.makeText(requireContext(), getString(R.string.p2p_status_waiting), Toast.LENGTH_LONG).show()
             return
         }
         Thread {
-            val idPubBytes = IdentityKeyStore.idPub()
-            val idPub = WebPushCrypto.b64enc(idPubBytes)
-            val fingerprint = MessageAuth.fingerprint(idPubBytes)
-            val payload = UnifiedPushPairing.encode(PairPayload(endpoint, pubKey, auth, idPub))
-            val bitmap = generateQrCode(payload)
-            activity?.runOnUiThread {
-                val ctx = context ?: return@runOnUiThread
-                if (_binding == null) return@runOnUiThread
-                val pad = (16 * resources.displayMetrics.density).toInt()
-                val image = ImageView(ctx).apply {
-                    setImageBitmap(bitmap)
-                    setPadding(pad, pad, pad, pad)
-                }
-                val hint = TextView(ctx).apply {
-                    text = getString(R.string.p2p_my_qr_hint)
-                    setPadding(pad, 0, pad, pad)
-                }
-                val fingerprintLabel = TextView(ctx).apply {
-                    text = getString(R.string.p2p_fingerprint_label)
-                    setPadding(pad, 0, pad, 0)
-                }
-                val fingerprintValue = TextView(ctx).apply {
-                    text = fingerprint
-                    typeface = android.graphics.Typeface.MONOSPACE
-                    setPadding(pad, 0, pad, pad)
-                }
-                val container = LinearLayout(ctx).apply {
-                    orientation = LinearLayout.VERTICAL
-                    gravity = Gravity.CENTER_HORIZONTAL
-                    addView(image)
-                    addView(hint)
-                    addView(fingerprintLabel)
-                    addView(fingerprintValue)
-                }
-                MaterialAlertDialogBuilder(ctx)
-                    .setTitle(R.string.p2p_my_qr_title)
-                    .setView(container)
-                    .setNeutralButton(R.string.pair_copy_link) { _, _ ->
-                        val clipboard = ctx.getSystemService(android.content.ClipboardManager::class.java)
-                        clipboard.setPrimaryClip(
-                            android.content.ClipData.newPlainText("pairing", UnifiedPushPairing.linkFor(payload))
-                        )
-                        Toast.makeText(ctx, getString(R.string.pair_link_copied), Toast.LENGTH_SHORT).show()
+            try {
+                val pairing = PushProvider.pairing(appContext)
+                if (pairing == null) {
+                    activity?.runOnUiThread {
+                        if (_binding === currentBinding) Toast.makeText(requireContext(), R.string.p2p_status_waiting, Toast.LENGTH_LONG).show()
                     }
-                    .setPositiveButton(R.string.btn_close, null)
-                    .show()
+                    return@Thread
+                }
+                val idPubBytes = WebPushCrypto.b64dec(requireNotNull(pairing.idPub))
+                val fingerprint = MessageAuth.fingerprint(idPubBytes)
+                val payload = UnifiedPushPairing.encode(pairing)
+                val bitmap = generateQrCode(payload)
+                activity?.runOnUiThread {
+                    val ctx = context ?: return@runOnUiThread
+                    if (_binding !== currentBinding) return@runOnUiThread
+                    val pad = (16 * resources.displayMetrics.density).toInt()
+                    val image = ImageView(ctx).apply {
+                        setImageBitmap(bitmap)
+                        setPadding(pad, pad, pad, pad)
+                    }
+                    val hint = TextView(ctx).apply {
+                        text = getString(R.string.p2p_my_qr_hint)
+                        setPadding(pad, 0, pad, pad)
+                    }
+                    val fingerprintLabel = TextView(ctx).apply {
+                        text = getString(R.string.p2p_fingerprint_label)
+                        setPadding(pad, 0, pad, 0)
+                    }
+                    val fingerprintValue = TextView(ctx).apply {
+                        text = fingerprint
+                        typeface = android.graphics.Typeface.MONOSPACE
+                        setPadding(pad, 0, pad, pad)
+                    }
+                    val container = LinearLayout(ctx).apply {
+                        orientation = LinearLayout.VERTICAL
+                        gravity = Gravity.CENTER_HORIZONTAL
+                        addView(image)
+                        addView(hint)
+                        addView(fingerprintLabel)
+                        addView(fingerprintValue)
+                    }
+                    MaterialAlertDialogBuilder(ctx)
+                        .setTitle(R.string.p2p_my_qr_title)
+                        .setView(container)
+                        .setNeutralButton(R.string.pair_copy_link) { _, _ ->
+                            val clipboard = ctx.getSystemService(android.content.ClipboardManager::class.java)
+                            clipboard.setPrimaryClip(
+                                android.content.ClipData.newPlainText("pairing", UnifiedPushPairing.linkFor(payload))
+                            )
+                            Toast.makeText(ctx, getString(R.string.pair_link_copied), Toast.LENGTH_SHORT).show()
+                        }
+                        .setPositiveButton(R.string.btn_close, null)
+                        .show()
+                }
+            } catch (_: Exception) {
+                activity?.runOnUiThread {
+                    if (_binding === currentBinding) Toast.makeText(requireContext(), R.string.p2p_pairing_failed, Toast.LENGTH_LONG).show()
+                }
             }
         }.start()
     }

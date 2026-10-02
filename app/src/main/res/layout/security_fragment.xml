@@ -40,7 +40,7 @@
                         android:backgroundTint="?attr/colorSecondaryContainer"
                         android:contentDescription="@null"
                         android:padding="11dp"
-                        android:src="@drawable/ic_key"
+                        android:src="@drawable/ic_shield_check"
                         app:tint="?attr/colorOnSecondaryContainer" />
 
                     <LinearLayout
@@ -53,26 +53,26 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/security_your_key_title"
+                            android:text="@string/p2p_security_title"
                             android:textAppearance="?attr/textAppearanceTitleMediumEmphasized" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="3dp"
-                            android:text="@string/security_your_key_description"
+                            android:text="@string/p2p_security_desc"
                             android:textAppearance="?attr/textAppearanceBodySmall" />
                     </LinearLayout>
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvKeyStatus"
+                    android:id="@+id/tvP2pStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/bg_card_soft"
                     android:backgroundTint="?attr/colorSurfaceContainerHighest"
-                    android:drawableStart="@drawable/ic_shield_check"
+                    android:drawableStart="@drawable/ic_lock"
                     android:drawablePadding="10dp"
                     android:gravity="center_vertical"
                     android:minHeight="50dp"
@@ -81,31 +81,70 @@
                     app:drawableTint="?attr/colorPrimary" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGenerateKey"
+                    android:id="@+id/btnShowMyQr"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/security_generate"
-                    app:icon="@drawable/ic_key" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnShowKey"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/security_show_key"
+                    android:text="@string/p2p_btn_show_qr"
                     app:icon="@drawable/ic_qr" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnImportKey"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="match_parent"
+        <FrameLayout
+            android:id="@+id/pushSettingsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardNoDistributor"
+            style="@style/Widget.Material3.CardView.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorTertiaryContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_badge_warning"
+                    android:backgroundTint="?attr/colorTertiaryContainer"
+                    android:contentDescription="@null"
+                    android:padding="9dp"
+                    android:src="@drawable/ic_alert"
+                    app:tint="?attr/colorOnTertiaryContainer" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/security_import"
-                    app:icon="@drawable/ic_download" />
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/p2p_no_distributor_title"
+                        android:textAppearance="?attr/textAppearanceTitleSmallEmphasized"
+                        android:textColor="?attr/colorOnTertiaryContainer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/p2p_no_distributor_msg"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnTertiaryContainer" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -134,7 +173,7 @@
                         android:backgroundTint="?attr/colorSecondaryContainer"
                         android:contentDescription="@null"
                         android:padding="10dp"
-                        android:src="@drawable/ic_phone"
+                        android:src="@drawable/ic_radio"
                         app:tint="?attr/colorOnSecondaryContainer" />
 
                     <TextView
@@ -142,18 +181,76 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:text="@string/security_change_phone"
+                        android:text="@string/p2p_peers_header"
                         android:textAppearance="?attr/textAppearanceTitleMediumEmphasized" />
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnChangePhone"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                <TextView
+                    android:id="@+id/tvPeersEmpty"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="@string/security_change_phone"
-                    app:icon="@drawable/ic_edit" />
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:backgroundTint="?attr/colorSurfaceContainerHighest"
+                    android:gravity="center"
+                    android:minHeight="72dp"
+                    android:padding="14dp"
+                    android:text="@string/p2p_peers_empty"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                <LinearLayout
+                    android:id="@+id/peersContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Material3.CardView.Elevated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/requests_title"
+                    android:textAppearance="?attr/textAppearanceTitleMediumEmphasized" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="@string/requests_hint"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                <TextView
+                    android:id="@+id/tvRequestsEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:backgroundTint="?attr/colorSurfaceContainerHighest"
+                    android:gravity="center"
+                    android:minHeight="72dp"
+                    android:padding="14dp"
+                    android:text="@string/requests_empty"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                <LinearLayout
+                    android:id="@+id/requestsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

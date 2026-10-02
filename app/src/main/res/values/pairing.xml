@@ -22,6 +22,7 @@
     <string name="request_subtitle">Attempts: %1$d · Last: %2$s</string>
     <string name="request_dismiss">Dismiss request</string>
     <string name="p2p_pair_invalid">Invalid pairing QR.</string>
+    <string name="p2p_pairing_failed">Could not load your pairing keys. Try again.</string>
     <string name="p2p_pair_saved">Paired with %1$s</string>
     <string name="pair_copy_link">Copy pairing link</string>
     <string name="pair_link_copied">Pairing link copied</string>

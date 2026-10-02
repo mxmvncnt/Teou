@@ -8,6 +8,6 @@
     <string name="fcm_relay_url_help">Base URL of your FCM proxy, without /send. Leave empty to clear.</string>
     <string name="fcm_relay_url_invalid">Enter a valid HTTPS URL without credentials, query parameters, or a fragment.</string>
     <string name="fcm_relay_url_saved">FCM relay setting saved</string>
-    <string name="fcm_pairing_ready">Ready to pair. Share your QR or copy its pairing link. If your relay or Firebase token changes, share a new pairing.</string>
-    <string name="fcm_pairing_failed">Could not load your pairing keys. Try again.</string>
+    <string name="p2p_status_registered">Ready to pair. Share your QR or copy its pairing link. If your relay or Firebase token changes, share a new pairing.</string>
+    <string name="p2p_status_waiting">Configure your FCM relay URL below and wait for Firebase registration.</string>
 </resources>
