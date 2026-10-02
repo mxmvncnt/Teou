@@ -20,3 +20,4 @@ fcm-backend/*-firebase-adminsdk-*.json
 *.env
 !example.env
 fcm-backend/fcm-backend
+tmp/
