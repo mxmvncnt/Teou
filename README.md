@@ -10,10 +10,15 @@ all contacts will receive an invisible UnifiedPush notification that will tell t
 
 ## FCM (Google Play Services)
 
-This is still WIP
-
 Using FCM is a bit more tricky because it requires a dedicated backend to hold the FCM keys. Otherwise, anyone could simply spam users with a bunch of notifications.
 But with the backend running, the principle of the app would remain the same: users ask connected contacts for their location, and only then is it given.
+
+### FCM backend proxy
+
+You will find a backend proxy in the `fcm-backend` folder. Its a go backend and you will need to setup the environment variables and to have a valid firebase credential file to get it running.
+You will need to setup the environment variables found in the `config` folder, which contains an example file of all the possible variables.
+
+The backend endpoint can be manually set in the settings of the app. It requires https be setup on the backend
 
 ## Running in Android Studio
 
